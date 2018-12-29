@@ -1,6 +1,6 @@
 <?php
 
-include("wpkg_rapport.php");
+include("wpkg_libsql.php");
 
 $rapport_repertoire="/var/se3/unattended/install/wpkg/rapports/";
 
