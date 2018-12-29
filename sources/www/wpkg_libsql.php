@@ -152,4 +152,43 @@ function delete_info_app_poste($id_poste)
 	deconnexion_db_wpkg($wpkg_link);
 }
 
+function insert_applications($list_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications` (`id_nom_app`, `nom_app`, `version_app`, `compatibilite_app`, `categorie_app`, `prorite_app`, `reboot_app`, `active_app`, `date_modif_app`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+	mysqli_stmt_bind_param($update_query,"sssisiii", $list_appli["id_nom_app"], $list_appli["nom_app"], $list_appli["version_app"], $list_appli["compatibilite_app"], $list_appli["categorie_app"], $list_appli["prorite_app"], $list_appli["reboot_app"], $list_appli["active_app"]);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function update_applications($id_app,$list_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "UPDATE `applications` SET `id_nom_app`=?, `nom_app`=?, `version_app`=?, `compatibilite_app`=?, `categorie_app`=?, `prorite_app`=?, `reboot_app`=?, `active_app`=?, `date_modif_app`=NOW() WHERE id_app=?");
+	mysqli_stmt_bind_param($update_query,"sssisiiii", $list_appli["id_nom_app"], $list_appli["nom_app"], $list_appli["version_app"], $list_appli["compatibilite_app"], $list_appli["categorie_app"], $list_appli["prorite_app"], $list_appli["reboot_app"], $list_appli["active_app"],$id_app);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function delete_dependances()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "DELETE FROM `dependance`");
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function insert_dependance($id_appli,$id_required)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `dependance` (`id_app`, `id_app_requise`) VALUES (?, ?)");
+	mysqli_stmt_bind_param($update_query,"ii", $id_appli, $id_required);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
 ?>
