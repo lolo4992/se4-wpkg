@@ -85,18 +85,18 @@ function liste_applications()
 	{
 		while (mysqli_stmt_fetch($query))
 		{
-			$tab[hash('sha512',$res_id_nom_app)] = array("id_app"=>$res_id_app
-														,"id_nom_app"=>$res_id_nom_app
-														,"nom_app"=>$res_nom_app
-														,"version_app"=>$res_version_app
-														,"compatibilite_app"=>$res_compatibilite_app
-														,"categorie_app"=>$res_categorie_app
-														,"prorite_app"=>$res_prorite_app
-														,"reboot_app"=>$res_reboot_app
-														,"sha_app"=>$res_sha_app
-														,"date_modif_app"=>$res_date_modif_app
-														,"user_modif_app"=>$res_user_modif_app
-														,"active_app"=>$res_active_app);
+			$tab[hash('md5',$res_id_nom_app)]= array("id_app"=>$res_id_app
+													,"id_nom_app"=>$res_id_nom_app
+													,"nom_app"=>$res_nom_app
+													,"version_app"=>$res_version_app
+													,"compatibilite_app"=>$res_compatibilite_app
+													,"categorie_app"=>$res_categorie_app
+													,"prorite_app"=>$res_prorite_app
+													,"reboot_app"=>$res_reboot_app
+													,"sha_app"=>$res_sha_app
+													,"date_modif_app"=>$res_date_modif_app
+													,"user_modif_app"=>$res_user_modif_app
+													,"active_app"=>$res_active_app);
 		}
 
 	}
@@ -104,13 +104,13 @@ function liste_applications()
 	return $tab;
 	deconnexion_db_wpkg($wpkg_link);
 }
-	
+
 ///////////////////////////////////
-	
+
 function insert_poste_info_wpkg($info)
 {
 	$wpkg_link=connexion_db_wpkg();
-	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `postes` (`nom_poste`, `OS_poste`, `date_rapport_poste`, `ip_poste`, `mac_address_poste`, `sha_rapport_poste`, `file_log_poste`, `file_rapport_poste`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `postes` (`nom_poste`, `OS_poste`, `date_rapport_poste`, `ip_poste`, `mac_address_poste`, `sha_rapport_poste`, `file_log_poste`, `file_rapport_poste`, `date_modification_poste`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 	mysqli_stmt_bind_param($update_query,"ssssssss", $info["nom_poste"], $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"]);
 	mysqli_stmt_execute($update_query);
 	$id=mysqli_insert_id($wpkg_link);
@@ -123,7 +123,7 @@ function insert_poste_info_wpkg($info)
 function update_poste_info_wpkg($info)
 {
 	$wpkg_link=connexion_db_wpkg();
-	$update_query = mysqli_prepare($wpkg_link, "UPDATE `postes` SET `OS_poste`=?, `date_rapport_poste`=?, `ip_poste`=?, `mac_address_poste`=?, `sha_rapport_poste`=?, `file_log_poste`=?, `file_rapport_poste`=? WHERE `nom_poste`=?");
+	$update_query = mysqli_prepare($wpkg_link, "UPDATE `postes` SET `OS_poste`=?, `date_rapport_poste`=?, `ip_poste`=?, `mac_address_poste`=?, `sha_rapport_poste`=?, `file_log_poste`=?, `file_rapport_poste`=?, `date_modification_poste`=NOW() WHERE `nom_poste`=?");
 	mysqli_stmt_bind_param($update_query,"ssssssss", $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"], $info["nom_poste"]);
 	mysqli_stmt_execute($update_query);
 	$id=mysqli_insert_id($wpkg_link);
@@ -144,7 +144,7 @@ function insert_info_app_poste($id_poste,$id_app,$info)
 
 function delete_info_app_poste($id_poste)
 {
-	$wpkg_link=connexion_db_wpkg();  
+	$wpkg_link=connexion_db_wpkg();
 	$update_query = mysqli_prepare($wpkg_link, "DELETE FROM `poste_app` WHERE `id_poste`=?");
 	mysqli_stmt_bind_param($update_query,"i", $id_poste);
 	mysqli_stmt_execute($update_query);

@@ -17,6 +17,7 @@ foreach($iterator as $fichier)
 sort($liste_rapport);
 
 $liste_postes=info_postes();
+$liste_app=liste_applications();
 $info_sha_postes=info_sha_postes();
 
 //Gestion de tous les rapports
@@ -112,12 +113,12 @@ foreach ($liste_rapport as $rapport_fichier)
 			delete_info_app_poste($id_poste);
 			if (count($info)>0)
 			{
-				$liste_app=liste_applications();
 				foreach ($info as $tmp_info)
 				{
-					if (isset($liste_app[hash('sha512',$tmp_info["id_nom_app"])]))
+					$md5=hash('md5',$tmp_info["id_nom_app"]);
+					if (isset($liste_app[$md5]))
 					{
-						$id_app=$liste_app[hash('sha512',$tmp_info["id_nom_app"])]["id_app"];
+						$id_app=$liste_app[$md5]["id_app"];
 					}
 					else
 					{
