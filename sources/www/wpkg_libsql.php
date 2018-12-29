@@ -113,7 +113,7 @@ function insert_poste_info_wpkg($info)
 	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `postes` (`nom_poste`, `OS_poste`, `date_rapport_poste`, `ip_poste`, `mac_address_poste`, `sha_rapport_poste`, `file_log_poste`, `file_rapport_poste`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 	mysqli_stmt_bind_param($update_query,"ssssssss", $info["nom_poste"], $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"]);
 	mysqli_stmt_execute($update_query);
-	$id=mysqli_insert_id();
+	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
 	return $id;
@@ -126,7 +126,7 @@ function update_poste_info_wpkg($info)
 	$update_query = mysqli_prepare($wpkg_link, "UPDATE `postes` SET `OS_poste`=?, `date_rapport_poste`=?, `ip_poste`=?, `mac_address_poste`=?, `sha_rapport_poste`=?, `file_log_poste`=?, `file_rapport_poste`=? WHERE `nom_poste`=?");
 	mysqli_stmt_bind_param($update_query,"ssssssss", $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"], $info["nom_poste"]);
 	mysqli_stmt_execute($update_query);
-	$id=mysqli_insert_id();
+	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
 	return $id;

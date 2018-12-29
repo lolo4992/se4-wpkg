@@ -48,7 +48,6 @@ foreach ($liste_rapport as $rapport_fichier)
 			$info=array();
 			while (($rapport_ligne=fgets($rapport_txt)) !== false)
 			{
-				
 				if ($ligne==0)
 				{
 					$rapport_ligne_data=explode(" ",$rapport_ligne);
@@ -59,7 +58,7 @@ foreach ($liste_rapport as $rapport_fichier)
 								,"logfile"=>$rapport_ligne_data[2].".log"
 								,"rapportfile"=>$rapport_fichier
 								,"sha512"=>$sha512_file);
-				
+
 					if (strpos($info["ip"],"/")!== false)
 					{
 						$info["ip"]=substr($info["ip"],0,strpos($info["ip"],"/")-strlen($info["ip"]));
@@ -110,26 +109,25 @@ foreach ($liste_rapport as $rapport_fichier)
 				}
 				$ligne++;
 			}
-			
+			delete_info_app_poste($id_poste);
+			if (count($info)>0)
+			{
+				$liste_app=liste_applications();
+				foreach ($info as $tmp_info)
+				{
+					if (isset($liste_app[hash('sha512',$tmp_info["id_nom_app"])]))
+					{
+						$id_app=$liste_app[hash('sha512',$tmp_info["id_nom_app"])]["id_app"];
+					}
+					else
+					{
+						$id_app=0;
+					}
+					insert_info_app_poste($id_poste,$id_app,$tmp_info);
+				}
+			}
 		}
 		fclose($rapport_txt);
-	}
-	if (count($info)>0)
-	{
-		delete_info_app_poste($id_poste);
-		$liste_app=liste_applications();
-		foreach ($info as $tmp_info)
-		{
-			if (isset($liste_app[hash('sha512',$tmp_info["id_nom_app"])]))
-			{
-				$id_app=$liste_app[hash('sha512',$tmp_info["id_nom_app"])]["id_app"];
-			}
-			else
-			{
-				$id_app=0;
-			}
-			insert_info_app_poste($id_poste,$id_app,$tmp_info);
-		}
 	}
 }
 ?>
