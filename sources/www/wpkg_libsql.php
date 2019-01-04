@@ -45,8 +45,8 @@ function info_postes()
 
 	}
 	mysqli_stmt_close($query);
-	return $tab;
 	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
 }
 
 
@@ -68,8 +68,8 @@ function info_sha_postes()
 
 	}
 	mysqli_stmt_close($query);
-	return $tab;
 	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
 }
 
 function liste_applications()
@@ -101,8 +101,8 @@ function liste_applications()
 
 	}
 	mysqli_stmt_close($query);
-	return $tab;
 	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
 }
 
 ///////////////////////////////////
@@ -188,6 +188,52 @@ function insert_dependance($id_appli,$id_required)
 	mysqli_stmt_bind_param($update_query,"ii", $id_appli, $id_required);
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function insert_journal_app($id_appli,$info)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `journal_app` (`id_app`, `operation_journal_app`, `user_journal_app`, `date_journal_app`, `xml_journal_app`, `sha_journal_app`) VALUES (?, ?, ?, ?, ?, ?)");
+	mysqli_stmt_bind_param($update_query,"isssss", $id_appli, $info["operation_journal_app"], $info["user_journal_app"], $info["date_journal_app"], $info["xml_journal_app"], $info["sha_journal_app"]);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function update_sha_xml_journal($url_xml_tmp)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT ja1.id_app, ja1.xml_journal_app, ja1.user_journal_app, ja1.id_journal_app FROM (journal_app ja1)
+										LEFT JOIN (journal_app ja2)
+										ON (ja1.id_app=ja2.id_app and ja1.id_journal_app<ja2.id_journal_app)
+										where ja2.id_journal_app is NULL and ja1.id_app!=0 and ja1.operation_journal_app='add'
+										ORDER BY ja1.`id_app` ASC");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app, $res_xml_journal_app, $res_user_journal_app, $res_id_journal_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			if (file_exists($url_xml_tmp.$res_xml_journal_app))
+			{
+				$sha512_file=hash_file('sha512',$url_xml_tmp.$res_xml_journal_app);
+				$update_query = mysqli_prepare($wpkg_link, "UPDATE `journal_app` SET `sha_journal_app`=? WHERE `id_journal_app`=?");
+				mysqli_stmt_bind_param($update_query,"si", $sha512_file, $res_id_journal_app);
+				mysqli_stmt_execute($update_query);
+				mysqli_stmt_close($update_query);
+				$update_query = mysqli_prepare($wpkg_link, "UPDATE `applications` SET `sha_app`=?, user_modif_app=? WHERE `id_app`=?");
+				mysqli_stmt_bind_param($update_query,"ssi", $sha512_file, $res_user_journal_app, $res_id_app);
+				mysqli_stmt_execute($update_query);
+				mysqli_stmt_close($update_query);
+			}
+		}
+
+	}
+	mysqli_stmt_close($query);
 	deconnexion_db_wpkg($wpkg_link);
 }
 

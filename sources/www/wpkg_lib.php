@@ -30,7 +30,8 @@ function extract_app($get_Appli,$url_packages,$url_extract)
 			$return=1;
 		}
 	}
-
+	
+	$xml2->encoding = 'UTF-8';
 	$xml2->save($url_extract);
 
 	return $return;
