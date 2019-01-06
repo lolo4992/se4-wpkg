@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `applications` (
   PRIMARY KEY (`id_app`),
   KEY `id_nom_app` (`id_nom_app`),
   KEY `id_nom_app_2` (`id_nom_app`,`active_app`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=153 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `dependance` (
   `id_app_requise` int(11) NOT NULL,
   PRIMARY KEY (`id_dependance`),
   UNIQUE KEY `id_app` (`id_app`,`id_app_requise`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=106 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `journal_app` (
   `sha_journal_app` varchar(128) NOT NULL,
   PRIMARY KEY (`id_journal_app`),
   KEY `id_app` (`id_app`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=430 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `postes` (
   `date_modification_poste` datetime NOT NULL,
   PRIMARY KEY (`id_poste`),
   UNIQUE KEY `nom_poste` (`nom_poste`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=445 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `poste_app` (
   `statut_poste_app` varchar(13) NOT NULL,
   `reboot_poste_app` tinyint(4) NOT NULL,
   PRIMARY KEY (`id_poste_rapport`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=70182 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
