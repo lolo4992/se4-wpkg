@@ -1,17 +1,17 @@
 <?php
 
-$dbhost='localhost';
-$dbuser='root';
-$dbpass='XXXX';
-$dbname='se3wpkg';
+$dbhost_wpkg='localhost';
+$dbuser_wpkg='root';
+$dbpass_wpkg='XXXX';
+$dbname_wpkg='se3wpkg';
 
 function connexion_db_wpkg()
 {
-	global $dbhost,$dbuser,$dbpass, $dbname;
-	$link = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+	global $dbhost_wpkg,$dbuser_wpkg,$dbpass_wpkg, $dbname_wpkg;
+	$link = mysqli_connect($dbhost_wpkg, $dbuser_wpkg, $dbpass_wpkg, $dbname_wpkg);
 	mysqli_set_charset($link, "utf8");
 	return $link;
-}
+}	
 
 function deconnexion_db_wpkg($link)
 {
@@ -20,7 +20,7 @@ function deconnexion_db_wpkg($link)
 
 function info_postes()
 {
-    $wpkg_link=connexion_db_wpkg();
+	$wpkg_link=connexion_db_wpkg();
 	$query = mysqli_prepare($wpkg_link, "SELECT id_poste,nom_poste,OS_poste,date_rapport_poste,ip_poste,mac_address_poste,sha_rapport_poste,file_log_poste,file_rapport_poste,date_modification_poste FROM postes");
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_id_poste,$res_nom_poste,$res_OS_poste,$res_date_rapport_poste,$res_ip_poste,$res_mac_address_poste,$res_sha_rapport_poste,$res_file_log_poste,$res_file_rapport_poste,$res_date_modification_poste);
@@ -41,6 +41,32 @@ function info_postes()
 										,"file_log_poste"=>$res_file_log_poste
 										,"file_rapport_poste"=>$res_file_rapport_poste
 										,"date_modification_poste"=>$res_date_modification_poste);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_poste_parcs($nom_poste)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT pa.nom_parc, pa.nom_parc_wpkg, pa.id_parc, po.id_poste FROM parc pa, postes po, parc_profile pp WHERE po.nom_poste=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste");
+	mysqli_stmt_bind_param($query,"s", $nom_poste);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_nom_parc,$res_nom_parc_wpkg,$res_id_parc,$res_id_poste);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_nom_parc] = array("id_parc"=>$res_id_parc
+										,"id_poste"=>$res_id_poste
+										,"nom_parc"=>$res_nom_parc
+										,"nom_parc_wpkg"=>$res_nom_parc_wpkg);
 		}
 
 	}
@@ -289,6 +315,18 @@ function insert_parc_profile($id_poste,$id_parc)
 {
 	$wpkg_link=connexion_db_wpkg();
 	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `parc_profile` (`id_poste`, `id_parc`) VALUES (?, ?)");
+	mysqli_stmt_bind_param($update_query,"ii", $id_poste, $id_parc);
+	mysqli_stmt_execute($update_query);
+	$id=mysqli_insert_id($wpkg_link);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
+}
+
+function delete_parc_profile($id_poste,$id_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "DELETE FROM `parc_profile` WHERE `id_poste`=? AND `id_parc`=?");
 	mysqli_stmt_bind_param($update_query,"ii", $id_poste, $id_parc);
 	mysqli_stmt_execute($update_query);
 	$id=mysqli_insert_id($wpkg_link);
