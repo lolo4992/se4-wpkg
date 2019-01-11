@@ -14,13 +14,13 @@ foreach ($liste_parc_brut as $parc)
 {
 	if (isset($liste_parcs[$parc["cn"]]))
 	{
-		echo "Le parc ".$parc["cn"]." existait déjà.<br>";
+		//echo "Le parc ".$parc["cn"]." existait déjà.<br>";
 	}
 	else
 	{
 		$id_parc=insert_parc($parc["cn"]);
 		$liste_parcs[$parc["cn"]]["id"]=$id_parc;
-		echo "<b>Le parc ".$parc["cn"]." a été créé.</b><br>";
+		//echo "<b>Le parc ".$parc["cn"]." a été créé.</b><br>";
 	}
 	$liste_parcs_tmp[$parc["cn"]]=array();
 }
@@ -42,11 +42,11 @@ foreach ($liste_hosts_brut as $host)
 						,"typewin"=>"");
 			$id_poste=insert_poste_info_wpkg($info);
 			$liste_postes[$host["cn"]]["id"]=$id_poste;
-			echo "<b>Le poste ".$host["cn"]." a été créé.</b><br>";
+			//echo "<b>Le poste ".$host["cn"]." a été créé.</b><br>";
 		}
 		else
 		{
-			echo "Le poste ".$host["cn"]." existait déjà.<br>";
+			//echo "Le poste ".$host["cn"]." existait déjà.<br>";
 		}
 	}
 	$liste_poste_parc_sql=info_poste_parcs($host["cn"]);
@@ -57,14 +57,14 @@ foreach ($liste_hosts_brut as $host)
 		{
 			if (isset($liste_poste_parc_sql[$parcs["cn"]]))
 			{
-				echo "Le poste ".$host["cn"]." est déjà dans le parc ".$parcs["cn"].".<br>";
+				//echo "Le poste ".$host["cn"]." est déjà dans le parc ".$parcs["cn"].".<br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}
 			else
 			{
 				
 				insert_parc_profile($liste_postes[$host["cn"]]["id"],$liste_parcs[$parcs["cn"]]["id"]);
-				echo "<b>Le poste ".$host["cn"]." a été ajouté au parc ".$parcs["cn"].".</b><br>";
+				//echo "<b>Le poste ".$host["cn"]." a été ajouté au parc ".$parcs["cn"].".</b><br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}
 		}
@@ -74,7 +74,7 @@ foreach ($liste_hosts_brut as $host)
 		if (isset($parcs["id_parc"]))
 		{
 			delete_parc_profile($liste_postes[$host["cn"]]["id"],$liste_parcs[$parcs["cn"]]["id"]);
-			echo "<b>Le poste ".$host["cn"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
+			//echo "<b>Le poste ".$host["cn"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
 			$liste_poste_parc_sql[$parcs["cn"]]=array();
 		}
 	}
@@ -91,13 +91,13 @@ foreach ($liste_postes as $postes)
 		{
 			if (isset($liste_poste_parc_sql[$parcs["cn"]]))
 			{
-				echo "Le poste ".$postes["nom_poste"]." est déjà dans le parc ".$parcs["cn"].".<br>";
+				//echo "Le poste ".$postes["nom_poste"]." est déjà dans le parc ".$parcs["cn"].".<br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}
 			else
 			{
 				insert_parc_profile($postes["id"],$liste_parcs[$parcs["cn"]]["id"]);
-				echo "<b>Le poste ".$postes["nom_poste"]." a été ajouté au parc ".$parcs["cn"].".</b><br>";
+				//echo "<b>Le poste ".$postes["nom_poste"]." a été ajouté au parc ".$parcs["cn"].".</b><br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}
 		}
@@ -106,7 +106,7 @@ foreach ($liste_postes as $postes)
 			if (isset($parcs["id_parc"]))
 			{
 				delete_parc_profile($postes["id"],$liste_parcs[$parcs["cn"]]["id"]);
-				echo "<b>Le poste ".$postes["nom_poste"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
+				//echo "<b>Le poste ".$postes["nom_poste"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}
 		}
