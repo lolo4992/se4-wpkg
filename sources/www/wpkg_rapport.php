@@ -26,14 +26,14 @@ foreach ($liste_rapport as $rapport_fichier)
 	// Gestion de chaque rapport
 	$rapport_txt=@fopen($rapport_repertoire.$rapport_fichier, "r");
 	$uptodate=0;
-	$sha512_file=hash_file('sha512',$rapport_repertoire.$rapport_fichier);
+	$sha256_file=hash_file('sha256',$rapport_repertoire.$rapport_fichier);
 	if ($rapport_txt)
 	{
 		if (!isset ($info_sha_postes[$rapport_fichier]))
 		{
 			$uptodate=-1;
 		}
-		else if ($info_sha_postes[$rapport_fichier]==$sha512_file)
+		else if ($info_sha_postes[$rapport_fichier]==$sha256_file)
 		{
 			$uptodate=1;
 		}
@@ -58,7 +58,7 @@ foreach ($liste_rapport as $rapport_fichier)
 								,"ip"=>substr($rapport_ligne_data[4],1)
 								,"logfile"=>$rapport_ligne_data[2].".log"
 								,"rapportfile"=>$rapport_fichier
-								,"sha512"=>$sha512_file);
+								,"sha256"=>$sha256_file);
 
 					if (strpos($info["ip"],"/")!== false)
 					{

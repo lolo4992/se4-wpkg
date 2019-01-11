@@ -49,6 +49,29 @@ function info_postes()
 	return $tab;
 }
 
+function info_parcs()
+{
+    $wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT id_parc,nom_parc,nom_parc_wpkg FROM parc");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_parc,$res_nom_parc,$res_nom_parc_wpkg);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_nom_parc]=array("id"=>$res_id_parc
+									,"nom_parc"=>$res_nom_parc
+									,"nom_parc_wpkg"=>$res_nom_parc_wpkg);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
 
 function info_sha_postes()
 {
@@ -111,7 +134,7 @@ function insert_poste_info_wpkg($info)
 {
 	$wpkg_link=connexion_db_wpkg();
 	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `postes` (`nom_poste`, `OS_poste`, `date_rapport_poste`, `ip_poste`, `mac_address_poste`, `sha_rapport_poste`, `file_log_poste`, `file_rapport_poste`, `date_modification_poste`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-	mysqli_stmt_bind_param($update_query,"ssssssss", $info["nom_poste"], $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"]);
+	mysqli_stmt_bind_param($update_query,"ssssssss", $info["nom_poste"], $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha256"], $info["logfile"], $info["rapportfile"]);
 	mysqli_stmt_execute($update_query);
 	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
@@ -124,7 +147,7 @@ function update_poste_info_wpkg($info)
 {
 	$wpkg_link=connexion_db_wpkg();
 	$update_query = mysqli_prepare($wpkg_link, "UPDATE `postes` SET `OS_poste`=?, `date_rapport_poste`=?, `ip_poste`=?, `mac_address_poste`=?, `sha_rapport_poste`=?, `file_log_poste`=?, `file_rapport_poste`=?, `date_modification_poste`=NOW() WHERE `nom_poste`=?");
-	mysqli_stmt_bind_param($update_query,"ssssssss", $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha512"], $info["logfile"], $info["rapportfile"], $info["nom_poste"]);
+	mysqli_stmt_bind_param($update_query,"ssssssss", $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha256"], $info["logfile"], $info["rapportfile"], $info["nom_poste"]);
 	mysqli_stmt_execute($update_query);
 	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
@@ -235,6 +258,55 @@ function update_sha_xml_journal($url_xml_tmp)
 	}
 	mysqli_stmt_close($query);
 	deconnexion_db_wpkg($wpkg_link);
+}
+
+function truncate_table_profiles()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "TRUNCATE TABLE `applications_profile`");
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	$update_query = mysqli_prepare($wpkg_link, "TRUNCATE TABLE `parc_profile`");
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
+}
+
+function insert_application_profile($type_entite,$id_entite,$id_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications_profile` (`type_entite`, `id_entite`, `id_appli`) VALUES (?, ?, ?)");
+	mysqli_stmt_bind_param($update_query,"sii", $type_entite, $id_entite, $id_appli);
+	mysqli_stmt_execute($update_query);
+	$id=mysqli_insert_id($wpkg_link);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
+}
+
+function insert_parc_profile($id_poste,$id_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `parc_profile` (`id_poste`, `id_parc`) VALUES (?, ?)");
+	mysqli_stmt_bind_param($update_query,"ii", $id_poste, $id_parc);
+	mysqli_stmt_execute($update_query);
+	$id=mysqli_insert_id($wpkg_link);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
+}
+
+function insert_parc($nom_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `parc` (`nom_parc`) VALUES (?)");
+	mysqli_stmt_bind_param($update_query,"s", $nom_parc);
+	mysqli_stmt_execute($update_query);
+	$id=mysqli_insert_id($wpkg_link);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
 }
 
 ?>
