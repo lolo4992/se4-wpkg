@@ -73,7 +73,7 @@ foreach ($liste_hosts_brut as $host)
 	{
 		if (isset($parcs["id_parc"]))
 		{
-			delete_parc_profile($liste_postes[$host["cn"]]["id"],$liste_parcs[$parcs["cn"]]["id"]);
+			delete_parc_profile($liste_postes[$host["cn"]]["id"],$liste_parcs[$parcs["nom_parc"]]["id"]);
 			//echo "<b>Le poste ".$host["cn"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
 			$liste_poste_parc_sql[$parcs["cn"]]=array();
 		}
@@ -105,7 +105,7 @@ foreach ($liste_postes as $postes)
 		{
 			if (isset($parcs["id_parc"]))
 			{
-				delete_parc_profile($postes["id"],$liste_parcs[$parcs["cn"]]["id"]);
+				delete_parc_profile($postes["id"],$liste_parcs[$parcs["nom_parc"]]["id"]);
 				//echo "<b>Le poste ".$postes["nom_poste"]." a été supprimé du parc ".$parcs["nom_parc"].".</b><br>";
 				$liste_poste_parc_sql[$parcs["cn"]]=array();
 			}

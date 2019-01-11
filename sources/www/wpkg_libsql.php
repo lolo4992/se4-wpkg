@@ -329,10 +329,8 @@ function delete_parc_profile($id_poste,$id_parc)
 	$update_query = mysqli_prepare($wpkg_link, "DELETE FROM `parc_profile` WHERE `id_poste`=? AND `id_parc`=?");
 	mysqli_stmt_bind_param($update_query,"ii", $id_poste, $id_parc);
 	mysqli_stmt_execute($update_query);
-	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
-	return $id;
 }
 
 function insert_parc($nom_parc)

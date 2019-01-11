@@ -15,4 +15,4 @@
 ## $Id$ ##
 # last update fev 2016 - utf8
 
-
+/usr/bin/php /var/www/se3/wpkg2/wpkg_ldap_update.php
