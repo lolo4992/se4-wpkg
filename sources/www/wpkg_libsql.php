@@ -5,6 +5,39 @@ $dbuser_wpkg='root';
 $dbpass_wpkg='XXXX';
 $dbname_wpkg='se3wpkg';
 
+/*
+----------------------------------------------------------------------------------------------------
+
+connexion_db_wpkg() : connexion sql
+deconnexion_db_wpkg($link) : deconnexion sql
+info_postes() : liste des postes
+info_poste_parcs($nom_poste) : liste des parcs d'un poste
+info_poste_applications($nom_poste) : liste des applications d'un poste
+info_parcs() : liste des parcs
+info_sha_postes() : liste des rapports et leur hashage
+liste_applications() : liste des applications
+
+----------------------------------------------------------------------------------------------------
+
+insert_poste_info_wpkg($info) : insere un poste
+update_poste_info_wpkg($info) : mise a jour des informations d'un poste
+insert_info_app_poste($id_poste,$id_app,$info) : insere les infos rapports pour un poste
+delete_info_app_poste($id_poste) : supprime toutes les infos rapports pour un poste
+insert_applications($list_appli) : ajoute une application
+update_applications($id_app,$list_appli) : mise à jour d'une application
+delete_dependances() : suppression de toutes les dependances
+insert_dependance($id_appli,$id_required) : ajout d'une dependance d'application
+insert_journal_app($id_appli,$info) : ajout des info sur la mise a jour d'une application
+update_sha_xml_journal($url_xml_tmp) : mise a jour des hashage des applications inserees
+truncate_table_profiles() : vidage des tables profile
+insert_application_profile($type_entite,$id_entite,$id_appli) : ajout d'une application a d'un poste ou un parc
+insert_parc_profile($id_poste,$id_parc) : ajout d'un poste a un parc
+delete_parc_profile($id_poste,$id_parc) : suppression d'un parc d'un parc
+insert_parc($nom_parc) : ajout d'un parc
+
+----------------------------------------------------------------------------------------------------
+*/
+
 function connexion_db_wpkg()
 {
 	global $dbhost_wpkg,$dbuser_wpkg,$dbpass_wpkg, $dbname_wpkg;
@@ -52,7 +85,7 @@ function info_postes()
 function info_poste_parcs($nom_poste)
 {
 	$wpkg_link=connexion_db_wpkg();
-	$query = mysqli_prepare($wpkg_link, "SELECT pa.nom_parc, pa.nom_parc_wpkg, pa.id_parc, po.id_poste FROM parc pa, postes po, parc_profile pp WHERE po.nom_poste=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste");
+	$query = mysqli_prepare($wpkg_link, "SELECT pa.nom_parc, pa.nom_parc_wpkg, pa.id_parc, po.id_poste FROM (parc pa, postes po, parc_profile pp) WHERE po.nom_poste=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste");
 	mysqli_stmt_bind_param($query,"s", $nom_poste);
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_nom_parc,$res_nom_parc_wpkg,$res_id_parc,$res_id_poste);
@@ -71,6 +104,101 @@ function info_poste_parcs($nom_poste)
 
 	}
 	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_poste_applications($nom_poste)
+{
+	$wpkg_link=connexion_db_wpkg();
+
+	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (`postes` po, `applications_profile` ap, `applications` a)
+	WHERE po.nom_poste=? AND a.id_app=ap.id_appli AND po.id_poste=ap.id_entite AND ap.type_entite='poste' AND a.active_app=1");
+	mysqli_stmt_bind_param($query,"s", $nom_poste);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app, $res_id_nom_app, $res_nom_app, $res_version_app, $res_compatibilite_app, $res_categorie_app, $res_prorite_app, $res_reboot_app, $res_sha_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_id_app]["info_app"] =array("id_app"=>$res_id_app
+												,"id_nom_app"=>$res_id_nom_app
+												,"nom_app"=>$res_nom_app
+												,"version_app"=>$res_version_app
+												,"compatibilite_app"=>$res_compatibilite_app
+												,"categorie_app"=>$res_categorie_app
+												,"prorite_app"=>$res_prorite_app
+												,"reboot_app"=>$res_reboot_app
+												,"sha_app"=>$res_sha_app);
+			$tab[$res_id_app]["poste"][]=$nom_poste;
+		}
+
+	}
+	mysqli_stmt_close($query);
+
+	$query2 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app, p.id_parc, p.nom_parc, p.nom_parc_wpkg FROM (`postes` po, `applications_profile` ap, `applications` a, `parc_profile` pp, `parc` p)
+	WHERE po.nom_poste=? AND po.id_poste=pp.id_poste AND a.id_app=ap.id_appli AND pp.id_parc=ap.id_entite AND ap.type_entite='parc' AND p.id_parc=pp.id_parc AND a.active_app=1");
+	mysqli_stmt_bind_param($query2,"s", $nom_poste);
+	mysqli_stmt_execute($query2);
+	mysqli_stmt_bind_result($query2,$res_id_app2, $res_id_nom_app2, $res_nom_app2, $res_version_app2, $res_compatibilite_app2, $res_categorie_app2, $res_prorite_app2, $res_reboot_app2, $res_sha_app2, $res_id_parc2, $res_nom_parc2, $res_nom_parc_wpkg2);
+	mysqli_stmt_store_result($query2);
+	$num_rows2=mysqli_stmt_num_rows($query2);
+	if ($num_rows2!=0)
+	{
+		while (mysqli_stmt_fetch($query2))
+		{
+			$tab[$res_id_app2]["info_app"]=array("id_app"=>$res_id_app2
+												,"id_nom_app"=>$res_id_nom_app2
+												,"nom_app"=>$res_nom_app2
+												,"version_app"=>$res_version_app2
+												,"compatibilite_app"=>$res_compatibilite_app2
+												,"categorie_app"=>$res_categorie_app2
+												,"prorite_app"=>$res_prorite_app2
+												,"reboot_app"=>$res_reboot_app2
+												,"sha_app"=>$res_sha_app2);
+			$tab[$res_id_app2]["parc"][$res_nom_parc2]=array("id_parc"=>$res_id_parc2
+															,"nom_parc"=>$res_nom_parc2
+															,"nom_parc_wpkg"=>$res_nom_parc_wpkg2);
+		}
+
+	}
+	mysqli_stmt_close($query2);
+
+	if ($tab)
+	{
+		foreach ($tab[$res_id_app2] as $id_app=>$tmp)
+		{
+			$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (applications a, dependance d)
+			WHERE d.id_app=? AND d.id_app_requise=a.id_app");
+			mysqli_stmt_bind_param($query3,"i", $id_app);
+			mysqli_stmt_execute($query3);
+			mysqli_stmt_bind_result($query3,$res_id_app3, $res_id_nom_app3, $res_nom_app3, $res_version_app3, $res_compatibilite_app3, $res_categorie_app3, $res_prorite_app3, $res_reboot_app3, $res_sha_app3);
+			mysqli_stmt_store_result($query3);
+			$num_rows3=mysqli_stmt_num_rows($query3);
+			if ($num_rows3!=0)
+			{
+				while (mysqli_stmt_fetch($query3))
+				{
+					$tab[$res_id_app3]["info_app"]=array("id_app"=>$res_id_app3
+														,"id_nom_app"=>$res_id_nom_app3
+														,"nom_app"=>$res_nom_app3
+														,"version_app"=>$res_version_app3
+														,"compatibilite_app"=>$res_compatibilite_app3
+														,"categorie_app"=>$res_categorie_app3
+														,"prorite_app"=>$res_prorite_app3
+														,"reboot_app"=>$res_reboot_app3
+														,"sha_app"=>$res_sha_app3);
+					$tab[$res_id_app3]["required_by"][$id_app]=$tmp["info_app"];
+				}
+			}
+			mysqli_stmt_close($query3);
+		}
+	}
+	ksort($tab);
+
 	deconnexion_db_wpkg($wpkg_link);
 	return $tab;
 }
