@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Dim 06 Janvier 2019 à 22:27
+-- Généré le :  Lun 14 Janvier 2019 à 10:24
 -- Version du serveur :  5.5.59-0+deb7u1
 -- Version de PHP :  5.4.45-0+deb7u13
 
@@ -42,7 +42,21 @@ CREATE TABLE IF NOT EXISTS `applications` (
   PRIMARY KEY (`id_app`),
   KEY `id_nom_app` (`id_nom_app`),
   KEY `id_nom_app_2` (`id_nom_app`,`active_app`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `applications_profile`
+--
+
+CREATE TABLE IF NOT EXISTS `applications_profile` (
+  `id_applications_profile` int(11) NOT NULL AUTO_INCREMENT,
+  `id_appli` int(11) NOT NULL,
+  `type_entite` varchar(10) NOT NULL,
+  `id_entite` int(11) NOT NULL,
+  PRIMARY KEY (`id_applications_profile`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -56,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `dependance` (
   `id_app_requise` int(11) NOT NULL,
   PRIMARY KEY (`id_dependance`),
   UNIQUE KEY `id_app` (`id_app`,`id_app_requise`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -97,7 +111,34 @@ CREATE TABLE IF NOT EXISTS `journal_app` (
   `sha_journal_app` varchar(128) NOT NULL,
   PRIMARY KEY (`id_journal_app`),
   KEY `id_app` (`id_app`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `parc`
+--
+
+CREATE TABLE IF NOT EXISTS `parc` (
+  `id_parc` int(11) NOT NULL AUTO_INCREMENT,
+  `nom_parc` varchar(255) NOT NULL,
+  `nom_parc_wpkg` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id_parc`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `parc_profile`
+--
+
+CREATE TABLE IF NOT EXISTS `parc_profile` (
+  `id_parc_profile` int(11) NOT NULL AUTO_INCREMENT,
+  `id_parc` int(11) NOT NULL,
+  `id_poste` int(11) NOT NULL,
+  PRIMARY KEY (`id_parc_profile`),
+  UNIQUE KEY `id_parc` (`id_parc`,`id_poste`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -118,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `postes` (
   `date_modification_poste` datetime NOT NULL,
   PRIMARY KEY (`id_poste`),
   UNIQUE KEY `nom_poste` (`nom_poste`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -135,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `poste_app` (
   `statut_poste_app` varchar(13) NOT NULL,
   `reboot_poste_app` tinyint(4) NOT NULL,
   PRIMARY KEY (`id_poste_rapport`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
