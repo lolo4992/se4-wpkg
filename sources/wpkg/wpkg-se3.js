@@ -314,7 +314,7 @@ var message = "" +
  * 
  ******************************************************************************/
 /** base where to find the XML input files */
-var wpkg_base = "";
+var wpkg_base = "http://172.20.1.5:909/wpkg2/";
 
 /** forces to check for package existence but ignores wpkg.xml */
 var force = false;
@@ -457,9 +457,9 @@ var logfilePattern = "wpkg-[HOSTNAME].log";
 /** web file name of package database if base is an http url */
 var web_packages_file_name = "packages_xml_out.php";
 /** web file name of profile database if base is an http url */
-var web_profiles_file_name = "profiles_xml_out.php";
+var web_profiles_file_name = "profiles_xml_out.php?poste="+getHostname();
 /** web file name of hosts database if base is an http url */
-var web_hosts_file_name = "hosts_xml_out.php";
+var web_hosts_file_name = "hosts_xml_out.php?poste="+getHostname();
 
 /** name of local settings file */
 var settings_file_name = "wpkg.xml";
