@@ -1,5 +1,40 @@
 <?php
 
+// définition des style couleurs par defaut
+
+	$warning_bg = "#FF0000";
+	$warning_txt = "#FFFFFF";
+	$warning_lnk = "#FFFF00";
+	$error_bg = "#FFFF00";
+	$error_txt = "#000000";
+	$error_lnk = "#415594";
+	$ok_bg = "#00FF00";
+	$ok_txt = "#000000";
+	$ok_lnk = "#415594";
+	$unknown_bg = "#FFFFFF";
+	$unknown_txt = "#000000";
+	$unknown_lnk = "#415594";
+	$regular_lnk = "#0080ff";
+	$wintype_txt = "#FFF8DC";
+
+
+	$dep_entite_bg = "#0000FF";
+	$dep_entite_txt = "#FFFFFF";
+	$dep_entite_lnk = "#FF0000";
+	$dep_parc_bg = "#0080FF";
+	$dep_parc_txt = "#000000";
+	$dep_parc_lnk = "#FF0000";
+	$dep_depend_bg = "#00FFFF";
+	$dep_depend_txt = "#000000";
+	$dep_depend_lnk = "#FF0000";
+	$dep_no_bg = "#FFFFFF";
+	$dep_no_txt = "#000000";
+	$dep_no_lnk = "#FF0000";
+
+// Liste des applications protegees
+
+	$list_protected_app=array("wsusoffline", "ocs-client");
+
 function extract_app($get_Appli,$url_packages,$url_extract)
 {
 	$xml = new DOMDocument;

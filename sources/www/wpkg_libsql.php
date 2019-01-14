@@ -14,8 +14,11 @@ info_postes() : liste des postes
 info_poste_parcs($nom_poste) : liste des parcs d'un poste
 info_poste_applications($nom_poste) : liste des applications d'un poste
 info_parcs() : liste des parcs
+info_parc_postes($nom_parc) : liste des postes d'un parc
 info_sha_postes() : liste des rapports et leur hashage
 liste_applications() : liste des applications
+info_application_postes($id_appli) : liste des postes devant avoir l'application
+info_application_rapport($id_nom_appli) : liste des informations issus des rapports d'une application
 
 ----------------------------------------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ function connexion_db_wpkg()
 	$link = mysqli_connect($dbhost_wpkg, $dbuser_wpkg, $dbpass_wpkg, $dbname_wpkg);
 	mysqli_set_charset($link, "utf8");
 	return $link;
-}	
+}
 
 function deconnexion_db_wpkg($link)
 {
@@ -227,6 +230,33 @@ function info_parcs()
 	return $tab;
 }
 
+function info_parc_postes($nom_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT po.id_poste, po.nom_poste, po.OS_poste, po.date_rapport_poste, po.ip_poste, po.mac_address_poste FROM (parc pa, postes po, parc_profile pp) WHERE pa.nom_parc=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste");
+	mysqli_stmt_bind_param($query,"s", $nom_parc);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_poste,$res_nom_poste,$res_OS_poste,$res_date_rapport_poste,$res_ip_poste,$res_mac_address_poste);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_nom_poste] = array("nom_poste"=>$res_nom_poste
+									,"id_poste"=>$res_id_poste
+									,"OS_poste"=>$res_OS_poste
+									,"date_rapport_poste"=>$res_date_rapport_poste
+									,"ip_poste"=>$res_ip_poste
+									,"mac_address_poste"=>$res_mac_address_poste);
+		}
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 function info_sha_postes()
 {
     $wpkg_link=connexion_db_wpkg();
@@ -282,6 +312,145 @@ function liste_applications()
 	return $tab;
 }
 
+function info_application_postes($id_nom_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+
+	$depend=array();
+	$tab=array();
+	$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app as id_app_dependance FROM (applications a) LEFT JOIN (dependance d) ON d.id_app_requise=a.id_app WHERE a.id_nom_app=?");
+	mysqli_stmt_bind_param($query3,"s", $id_nom_appli);
+	mysqli_stmt_execute($query3);
+	mysqli_stmt_bind_result($query3,$res_id_app,$res_id_app_dependance);
+	mysqli_stmt_store_result($query3);
+	$num_rows3=mysqli_stmt_num_rows($query3);
+	if ($num_rows3!=0)
+	{
+		while (mysqli_stmt_fetch($query3))
+		{
+			if (!is_null($res_id_app_dependance))
+			{
+				$depend[]=$res_id_app_dependance;
+			}
+			$id_app=$res_id_app;
+		}
+	}
+	else
+		return $tab;
+	mysqli_stmt_close($query3);
+
+	$list_appli="(".$id_app;
+	if ($depend)
+	{
+		foreach ($depend as $id_depend)
+		{
+			$list_appli.=",".$id_depend;
+		}
+	}
+	$list_appli.=")";
+
+	$query = mysqli_prepare($wpkg_link, "SELECT po.id_poste, po.nom_poste, po.OS_poste, po.date_rapport_poste, po.ip_poste, po.mac_address_poste, po.file_log_poste, a.id_app, a.id_nom_app, a.nom_app 
+	FROM (`applications` a, `applications_profile` ap, `postes` po)
+	WHERE a.id_app in ".$list_appli." AND a.id_app=ap.id_appli AND ap.type_entite='poste' AND po.id_poste=ap.id_entite AND a.active_app=1");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_poste, $res_nom_poste, $res_OS_poste, $res_date_rapport_poste, $res_ip_poste, $res_mac_address_poste, $res_file_log_poste, $res_id_app, $res_id_nom_app, $res_nom_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_nom_poste]["info_poste"]=array("id_poste"=>$res_id_poste
+													,"nom_poste"=>$res_nom_poste
+													,"OS_poste"=>$res_OS_poste
+													,"date_rapport_poste"=>$res_date_rapport_poste
+													,"ip_poste"=>$res_ip_poste
+													,"mac_address_poste"=>$res_mac_address_poste
+													,"file_log_poste"=>$res_file_log_poste);
+			if ($res_id_app==$id_app)
+			{
+				$tab[$res_nom_poste]["poste"]=$nom_poste;
+			}
+			else
+			{
+				$tab[$res_nom_poste]["required_by"][$res_id_nom_app] = array("id_app"=>$res_id_app
+																			,"id_nom_app"=>$res_id_nom_app
+																			,"nom_app"=>$res_nom_app);
+			}
+		}
+
+	}
+	mysqli_stmt_close($query);
+
+	$query2 = mysqli_prepare($wpkg_link, "SELECT po.id_poste, po.nom_poste, po.OS_poste, po.date_rapport_poste, po.ip_poste, po.mac_address_poste, po.file_log_poste, p.id_parc, p.nom_parc, p.nom_parc_wpkg, a.id_app, a.id_nom_app, a.nom_app
+	FROM (`applications` a, `applications_profile` ap, `postes` po, `parc_profile` pp, `parc` p)
+	WHERE a.id_app in ".$list_appli." AND a.id_app=ap.id_appli AND ap.type_entite='parc' AND pp.id_parc=ap.id_entite AND p.id_parc=pp.id_parc AND po.id_poste=pp.id_poste AND a.active_app=1
+	ORDER BY p.nom_parc ASC");
+	mysqli_stmt_execute($query2);
+	mysqli_stmt_bind_result($query2,$res_id_poste2, $res_nom_poste2, $res_OS_poste2, $res_date_rapport_poste2, $res_ip_poste2, $res_mac_address_poste2, $res_file_log_poste2, $res_id_parc2, $res_nom_parc2, $res_nom_parc_wpkg2, $res_id_app2, $res_id_nom_app2, $res_nom_app2);
+	mysqli_stmt_store_result($query2);
+	$num_rows2=mysqli_stmt_num_rows($query2);
+	if ($num_rows2!=0)
+	{
+		while (mysqli_stmt_fetch($query2))
+		{
+			$tab[$res_nom_poste2]["info_poste"] = array("id_poste"=>$res_id_poste2
+														,"nom_poste"=>$res_nom_poste2
+														,"OS_poste"=>$res_OS_poste2
+														,"date_rapport_poste"=>$res_date_rapport_poste2
+														,"ip_poste"=>$res_ip_poste2
+														,"mac_address_poste"=>$res_mac_address_poste2
+														,"file_log_poste"=>$res_file_log_poste2);
+			if ($res_id_app2==$id_app)
+			{
+				$tab[$res_nom_poste2]["parc"][$res_nom_parc2]= array("id_parc"=>$res_id_parc2
+																	,"nom_parc"=>$res_nom_parc2
+																	,"nom_parc_wpkg"=>$res_nom_parc_wpkg2);
+			}
+			else
+			{
+				$tab[$res_nom_poste2]["required_by"][$res_id_nom_app2]=array("id_app"=>$res_id_app2
+																			,"id_nom_app"=>$res_id_nom_app2
+																			,"nom_app"=>$res_nom_app2);
+			}
+		}
+
+	}
+	mysqli_stmt_close($query2);
+	ksort($tab);
+
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_application_rapport($id_nom_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT p.id_poste, p.nom_poste, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE a.id_nom_app=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste ORDER BY p.nom_poste ASC");
+	mysqli_stmt_bind_param($query,"s", $id_nom_appli);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_poste, $res_nom_poste, $res_revision_poste_app, $res_statut_poste_app, $res_reboot_poste_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_nom_poste] = array("nom_poste"=>$res_nom_poste
+										,"id_poste"=>$res_id_poste
+										,"revision_poste_app"=>$res_revision_poste_app
+										,"statut_poste_app"=>$res_statut_poste_app
+										,"reboot_poste_app"=>$res_reboot_poste_app);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 ///////////////////////////////////
 
 function insert_poste_info_wpkg($info)
@@ -303,8 +472,22 @@ function update_poste_info_wpkg($info)
 	$update_query = mysqli_prepare($wpkg_link, "UPDATE `postes` SET `OS_poste`=?, `date_rapport_poste`=?, `ip_poste`=?, `mac_address_poste`=?, `sha_rapport_poste`=?, `file_log_poste`=?, `file_rapport_poste`=?, `date_modification_poste`=NOW() WHERE `nom_poste`=?");
 	mysqli_stmt_bind_param($update_query,"ssssssss", $info["typewin"], $info["datetime"], $info["ip"], $info["mac_address"], $info["sha256"], $info["logfile"], $info["rapportfile"], $info["nom_poste"]);
 	mysqli_stmt_execute($update_query);
-	$id=mysqli_insert_id($wpkg_link);
 	mysqli_stmt_close($update_query);
+	$query = mysqli_prepare($wpkg_link, "SELECT id_poste FROM `postes` WHERE nom_poste=?");
+	mysqli_stmt_bind_param($query,"s", $info["nom_poste"]);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_poste);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$id=0;
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$id=$res_id_poste;
+		}
+	}
+	mysqli_stmt_close($query);
 	deconnexion_db_wpkg($wpkg_link);
 	return $id;
 }
@@ -424,7 +607,6 @@ function truncate_table_profiles()
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
-	return $id;
 }
 
 function insert_application_profile($type_entite,$id_entite,$id_appli)

@@ -41,7 +41,7 @@ foreach ($liste_rapport as $rapport_fichier)
 		{
 			$uptodate=0;
 		}
-		
+
 		if ($uptodate!=1)
 		{
 			$ligne=0;
