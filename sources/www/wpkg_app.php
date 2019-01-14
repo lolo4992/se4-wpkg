@@ -40,7 +40,7 @@ foreach ($xml_packages->package as $app)
 
 	foreach ($app->depends as $app_dep)
 	{
-		$depend[(string) $app["id"]]=(string) $app_dep["package-id"];
+		$depend[(string) $app["id"]][]=(string) $app_dep["package-id"];
 	}
 }
 
@@ -51,10 +51,13 @@ if ($depend)
 	foreach ($depend as $appli=>$required)
 	{
 		$md5A=hash('md5',$appli);
-		$md5B=hash('md5',$required);
 		$id_appli=$liste_app[$md5A]["id_app"];
-		$id_required=$liste_app[$md5B]["id_app"];
-		insert_dependance($id_appli,$id_required);
+		foreach ($required as $required2)
+		{
+			$md5B=hash('md5',$required2);
+			$id_required=$liste_app[$md5B]["id_app"];
+			insert_dependance($id_appli,$id_required);
+		}
 	}
 }
 

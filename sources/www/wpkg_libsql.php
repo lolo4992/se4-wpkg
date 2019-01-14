@@ -288,6 +288,7 @@ function liste_applications()
 	mysqli_stmt_store_result($query);
 	$num_rows=mysqli_stmt_num_rows($query);
 	$tab=array();
+	$temp=array();
 	if ($num_rows!=0)
 	{
 		while (mysqli_stmt_fetch($query))
@@ -304,10 +305,28 @@ function liste_applications()
 													,"date_modif_app"=>$res_date_modif_app
 													,"user_modif_app"=>$res_user_modif_app
 													,"active_app"=>$res_active_app);
+			$temp[$res_id_app]=array("id_nom_app"=>$res_id_nom_app,"nom_app"=>$res_nom_app);
 		}
 
 	}
 	mysqli_stmt_close($query);
+
+	$query = mysqli_prepare($wpkg_link, "SELECT d.id_app, d.id_app_requise FROM dependance d");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app2, $id_app_requise2);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[hash('md5',$temp[$id_app_requise2]["id_nom_app"])]["required_by"][$res_id_app2]$temp[$res_id_app2];
+			$tab[hash('md5',$temp[$res_id_app2]["id_nom_app"])]["depends"][$id_app_requise2]=$temp[$id_app_requise2];
+		}
+
+	}
+	mysqli_stmt_close($query);
+
 	deconnexion_db_wpkg($wpkg_link);
 	return $tab;
 }

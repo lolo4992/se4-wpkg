@@ -35,7 +35,7 @@
 
 	$list_protected_app=array("wsusoffline", "ocs-client");
 
-function extract_app($get_Appli,$url_packages,$url_extract)
+function extract_app($get_Appli,$url_packages)
 {
 	$xml = new DOMDocument;
 	$xml->formatOutput = true;
@@ -54,22 +54,18 @@ function extract_app($get_Appli,$url_packages,$url_extract)
 	//$root->appendChild($comment);
 	$packages2 = $xml2->documentElement->getElementsByTagName('package');
 
-	$return=0;
-
 	foreach ($packages as $package)
 	{
 		if ($package->getAttribute('id')==$get_Appli)
 		{
 			$node=$xml2->importNode($package, true);
 			$xml2->documentElement->appendChild($node);
-			$return=1;
 		}
 	}
-	
-	$xml2->encoding = 'UTF-8';
-	$xml2->save($url_extract);
 
-	return $return;
+	$xml2->encoding = 'UTF-8';
+
+	return $xml2->saveXML();;
 }
 
 ?>
