@@ -127,25 +127,25 @@
 		switch ($application["compatibilite_app"])
 		{
 			case 1:
-			echo "<img src='winxp.png' witdh='20' height='20'>";
+			echo "<img src='images\winxp.png' witdh='20' height='20'>";
 			break;
 			case 2:
-			echo "<img src='win7.png' witdh='20' height='20'>";
+			echo "<img src='images\win7.png' witdh='20' height='20'>";
 			break;
 			case 3:
-			echo "<img src='winxp.png' witdh='20' height='20'><img src='win7.png' witdh='20' height='20'>";
+			echo "<img src='images\winxp.png' witdh='20' height='20'><img src='images\win7.png' witdh='20' height='20'>";
 			break;
 			case 4:
-			echo "<img src='win10.png' witdh='20' height='20'>";
+			echo "<img src='images\win10.png' witdh='20' height='20'>";
 			break;
 			case 5:
-			echo "<img src='winxp.png' witdh='20' height='20'><img src='win10.png' witdh='20' height='20'>";
+			echo "<img src='images\winxp.png' witdh='20' height='20'><img src='images\win10.png' witdh='20' height='20'>";
 			break;
 			case 6:
-			echo "<img src='win7.png' witdh='20' height='20'><img src='win10.png' witdh='20' height='20'>";
+			echo "<img src='images\win7.png' witdh='20' height='20'><img src='images\win10.png' witdh='20' height='20'>";
 			break;
 			case 7:
-			echo "<img src='winxp.png' witdh='20' height='20'><img src='win7.png' witdh='20' height='20'><img src='win10.png' witdh='20' height='20'>";
+			echo "<img src='images\winxp.png' witdh='20' height='20'><img src='images\win7.png' witdh='20' height='20'><img src='images\win10.png' witdh='20' height='20'>";
 			break;
 			case 0:
 			echo "";

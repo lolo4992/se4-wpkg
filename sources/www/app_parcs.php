@@ -360,7 +360,7 @@
 			echo "<tr bgcolor='".$lp["bg"]."' style='color: ".$lp["txt"]."'>";
 			echo "<td align='center'><a href='poste_statuts.php?id_host=".$lp["poste"]."' style='color: ".$lp["lnk"]."'>".$lp["poste"]."</a></td>";
 			echo "<td align='center' bgcolor='".$wintype_txt."'>";
-			echo '<img src="../elements/images/'.$lp["typewin"].'" width="20" height="20">';
+			echo '<img src="images/'.$lp["typewin"].'" width="20" height="20">';
 			echo "</td>";
 			echo "<td align='center'>".$lp["status"]."</td>";
 			echo "<td align='center'>".$lp["revision"]."</td>";
