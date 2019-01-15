@@ -314,7 +314,7 @@ var message = "" +
  * 
  ******************************************************************************/
 /** base where to find the XML input files */
-var wpkg_base = "http://172.20.1.5:909/wpkg2/";
+var wpkg_base = "http://172.20.1.5:909/wpkg2";
 
 /** forces to check for package existence but ignores wpkg.xml */
 var force = false;
