@@ -20,7 +20,7 @@
 		if (!array_key_exists(hash('md5',$get_Appli),$liste_appli))
 			header("Location: app_liste.php");
 
-		$statut=array("Not_Ok"=>0,"Ok"=>0,"MaJ"=>0,"Total"=>0);
+		$statut=array("Not_Ok"=>0,"Ok"=>0,"MaJ"=>0,"Total"=>0,"Total2"=>0);
 		foreach ($liste_hosts as $host1)
 		{
 			if (isset($liste_appli_postes[$host1["nom_poste"]])) // le poste necessite l'app
@@ -45,6 +45,7 @@
 					$statut["MaJ"]++;
 					$liste_appli_status[$host1["nom_poste"]]["statut_wpkg"]="MaJ";
 				}
+				$statut["Total2"]++;
 			}
 			else // le poste ne necessite pas l'app
 			{
@@ -244,7 +245,7 @@
 			}
 		}
 		echo "</td>";
-		echo "<td align='center'>".$statut["Total"]."</td>";
+		echo "<td align='center'>".$statut["Total2"]."</td>";
 		echo "<td align='center'";
 		if ($statut["Not_Ok"]>0)
 			echo " bgcolor='".$warning_bg."' style='color:".$warning_txt."'";
