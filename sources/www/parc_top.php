@@ -19,29 +19,28 @@
 		$info_poste[$poste["nom_poste"]]["status"]=array("MaJ"=>0,"Not_Ok-"=>0,"Ok"=>0,"Not_Ok+"=>0);
 		$info_poste[$poste["nom_poste"]]["info"]["date"]=date('d/m/Y',strtotime($info_poste[$poste["nom_poste"]]["info"]["datetime"]));
 		$info_poste[$poste["nom_poste"]]["info"]["time"]=date('H:i:s',strtotime($info_poste[$poste["nom_poste"]]["info"]["datetime"]));
-		foreach ($tmp_appli as $tmp_app)
+		foreach ($liste_appli as $key_app=>$tmp_app)
 		{
-			if (!isset($tmp_rapport[hash('md5',$tmp_app["info_app"]["id_nom_app"])]))
+			if (isset($tmp_appli[$tmp_app["id_app"]]))
 			{
-				$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
+				if (!isset($tmp_rapport[$key_app]))
+				{
+					$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
+				}
+				else if ($tmp_rapport[$key_app]["statut_poste_app"]=="Not Installed")
+				{
+					$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
+				}
+				else if ($tmp_rapport[$key_app]["revision_poste_app"]==$tmp_appli[$tmp_app["id_app"]]["info_app"]["version_app"])
+				{
+					$info_poste[$poste["nom_poste"]]["status"]["Ok"]++;
+				}
+				else
+				{
+					$info_poste[$poste["nom_poste"]]["status"]["MaJ"]++;
+				}
 			}
-			else if ($tmp_rapport[hash('md5',$tmp_app["info_app"]["id_nom_app"])]["statut_poste_app"]=="Not Installed")
-			{
-				$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
-			}
-			else if ($tmp_rapport[hash('md5',$tmp_app["info_app"]["id_nom_app"])]["revision_poste_app"]==$tmp_app["info_app"]["version_app"])
-			{
-				$info_poste[$poste["nom_poste"]]["status"]["Ok"]++;
-			}
-			else
-			{
-				$info_poste[$poste["nom_poste"]]["status"]["MaJ"]++;
-			}
-			$tmp_rapport[hash('md5',$tmp_app["info_app"]["id_nom_app"])]="";
-		}
-		foreach ($tmp_rapport as $tmp_app2)
-		{
-			if (@$tmp_app2["revision_poste_app"]=="Installed")
+			elseif (@$tmp_rapport[$key_app]["statut_poste_app"]=="Installed")
 			{
 				$info_poste[$poste["nom_poste"]]["status"]["Not_Ok+"]++;
 			}
@@ -51,7 +50,7 @@
 			$info_poste[$poste["nom_poste"]]["info"]["status"]=2;
 			$info_parc["Not_Ok"]++;
 		}
-		else if ($info_poste[$poste["nom_poste"]]["status"]["Maj"]>0)
+		else if ($info_poste[$poste["nom_poste"]]["status"]["MaJ"]>0)
 		{
 			$info_poste[$poste["nom_poste"]]["info"]["status"]=1;
 			$info_parc["MaJ"]++;
@@ -67,7 +66,7 @@
 	echo "<h1>Gestion des parcs</h1>\n";
 
 	echo "<input type='hidden' name='tri2' value='".$tri2."'>";
-	
+
 // tableau 0
 	echo "<table cellspadding='2' cellspacing='1' border='0' align='center' bgcolor='black'>\n";
 	echo "<tr bgcolor='white' height='30' valing='center'>";
@@ -113,7 +112,7 @@
 	echo "</tr>\n";
 	echo "</table>\n";
 	echo "<br>\n";
-	
+
 	// tableau 1
 	echo "<table cellspadding='2' cellspacing='1' border='0' align='center' bgcolor='black'>\n";
 	echo "<tr bgcolor='white' height='30' valing='center'>";
