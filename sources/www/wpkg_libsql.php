@@ -173,7 +173,7 @@ function info_poste_applications($nom_poste)
 
 	if ($tab)
 	{
-		foreach ($tab[$res_id_app2] as $id_app=>$tmp)
+		foreach ($tab as $id_app=>$tmp)
 		{
 			$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (applications a, dependance d)
 			WHERE d.id_app=? AND d.id_app_requise=a.id_app");
