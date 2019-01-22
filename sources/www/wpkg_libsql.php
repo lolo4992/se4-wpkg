@@ -90,7 +90,7 @@ function info_postes()
 function info_poste_parcs($nom_poste)
 {
 	$wpkg_link=connexion_db_wpkg();
-	$query = mysqli_prepare($wpkg_link, "SELECT pa.nom_parc, pa.nom_parc_wpkg, pa.id_parc, po.id_poste FROM (parc pa, postes po, parc_profile pp) WHERE po.nom_poste=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste");
+	$query = mysqli_prepare($wpkg_link, "SELECT pa.nom_parc, pa.nom_parc_wpkg, pa.id_parc, po.id_poste FROM (parc pa, postes po, parc_profile pp) WHERE po.nom_poste=? and pa.id_parc=pp.id_parc and pp.id_poste=po.id_poste ORDER BY pa.nom_parc ASC");
 	mysqli_stmt_bind_param($query,"s", $nom_poste);
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_nom_parc,$res_nom_parc_wpkg,$res_id_parc,$res_id_poste);
