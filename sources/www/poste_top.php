@@ -130,7 +130,7 @@
 	echo "</table>\n";
 	echo "<br>\n";
 
-	switch ($liste_poste_infos["status"]["status"])
+	switch ($liste_poste_infos["info"]["status"])
 	{
 		case 0:
 			$status_bg=$ok_bg;
