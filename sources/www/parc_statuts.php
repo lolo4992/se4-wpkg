@@ -16,7 +16,7 @@
 	include "ihm.inc.php";
 	include "wpkg_lib.php";
 	include "wpkg_libsql.php";
-	
+
 	$login = isauth();
 	if (! $login )
 	{
@@ -26,10 +26,10 @@
 		echo "//-->\n</script>\n";
 		exit;
 	}
-	
+
 	if (is_admin("computers_is_admin",$login)!="Y")
 		die (gettext("Vous n'avez pas les droits suffisants pour acc&#233;der &#224; cette fonction")."</BODY></HTML>");
-	
+
 	// HTMLpurifier
 	include("../se3/includes/library/HTMLPurifier.auto.php");
 	$config = HTMLPurifier_Config::createDefault();
@@ -42,7 +42,7 @@
 	if (isset($_GET["tri2"]))
 		$tri2=$purifier->purify($_GET["tri2"])+0;
 	else
-		$tri2=0;	
+		$tri2=0;
 	if (isset($_GET['Appli']))
 		$get_Appli=$purifier->purify($_GET['Appli']);
 	else
@@ -63,12 +63,12 @@
 		$get_ok=$purifier->purify($_GET["ok"])+0;
 	else
 		$get_ok=1;
-	
+
 	echo "<form method='get' action=''>\n";
 	$page_id=1;
 	include ("parc_top.php");
 	echo "</form>\n";
-	
+
 	if (is_array(@$info_poste))
 		$list_poste=$info_poste;
 	else
@@ -79,7 +79,7 @@
 	$tri_ip=array();
 	$tri_mac=array();
 	$tri_nb_app=array();
-	
+
 	foreach ($list_poste as $key=>$row)
 	{
 		$tri_poste[]=$key;
@@ -89,7 +89,7 @@
 		$tri_mac[]=$row["info"]["mac"];
 		$tri_nb_app[]=$row["info"]["nb_app"];
 	}
-	
+
 	if ($list_poste)
 	{
 		switch ($tri2)
@@ -134,8 +134,8 @@
 			array_multisort($tri_poste, SORT_ASC, $list_poste);
 			break;
 		}
-	}	
-	
+	}
+
 	echo "<table cellspadding='2' cellspacing='1' border='0' align='center' bgcolor='black'>\n";
 	echo "<tr style='color:white'>";
 	echo "<th width='120' rowspan='2'><a href='?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tri2=";
@@ -171,7 +171,7 @@
 		echo "10";
 	echo "' style='color:".$regular_lnk."'>Adresse mac</a></th>";
 	echo "</tr>\n";
-	
+
 	echo "<tr style='color:white'>";
 	echo "<th width='60'><a href='?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tri2=";
 	if ($tri2==4)
@@ -182,7 +182,7 @@
 	echo "<th width='60'>Pas &#224; jour</th>";
 	echo "<th width='60'>En erreur</th>";
 	echo "</tr>\n";
-	
+
 	foreach ($list_poste as $nom_poste=>$lp)
 	{
 		$affichage=0;

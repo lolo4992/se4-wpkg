@@ -13,52 +13,22 @@
 
 	foreach ($liste_postes_parc as $poste)
 	{
-		$tmp_rapport=info_poste_rapport($poste["nom_poste"]);
 		$tmp_appli=info_poste_applications($poste["nom_poste"]);
+		$tmp_list_key_appli=array_keys($tmp_appli);
+
 		$info_poste[$poste["nom_poste"]]["info"]=array("typewin"=>$poste["OS_poste"],"status"=>0,"nb_app"=>count($tmp_appli),"logfile"=>$poste["file_log_poste"],"ip"=>$poste["ip_poste"],"mac"=>$poste["mac_address_poste"],"datetime"=>$poste["date_rapport_poste"]);
-		$info_poste[$poste["nom_poste"]]["status"]=array("MaJ"=>0,"Not_Ok-"=>0,"Ok"=>0,"Not_Ok+"=>0);
+		$info_poste[$poste["nom_poste"]]["status"]=info_poste_statut($poste["id_poste"], $tmp_list_key_appli);
 		$info_poste[$poste["nom_poste"]]["info"]["date"]=date('d/m/Y',strtotime($info_poste[$poste["nom_poste"]]["info"]["datetime"]));
 		$info_poste[$poste["nom_poste"]]["info"]["time"]=date('H:i:s',strtotime($info_poste[$poste["nom_poste"]]["info"]["datetime"]));
-		foreach ($liste_appli as $key_app=>$tmp_app)
+		$info_poste[$poste["nom_poste"]]["info"]["status"]=$info_poste[$poste["nom_poste"]]["status"]["status"];
+		switch ($info_poste[$poste["nom_poste"]]["info"]["status"])
 		{
-			if (isset($tmp_appli[$tmp_app["id_app"]]))
-			{
-				if (!isset($tmp_rapport[$key_app]))
-				{
-					$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
-				}
-				else if ($tmp_rapport[$key_app]["statut_poste_app"]=="Not Installed")
-				{
-					$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]++;
-				}
-				else if ($tmp_rapport[$key_app]["revision_poste_app"]==$tmp_appli[$tmp_app["id_app"]]["info_app"]["version_app"])
-				{
-					$info_poste[$poste["nom_poste"]]["status"]["Ok"]++;
-				}
-				else
-				{
-					$info_poste[$poste["nom_poste"]]["status"]["MaJ"]++;
-				}
-			}
-			elseif (@$tmp_rapport[$key_app]["statut_poste_app"]=="Installed")
-			{
-				$info_poste[$poste["nom_poste"]]["status"]["Not_Ok+"]++;
-			}
-		}
-		if ($info_poste[$poste["nom_poste"]]["status"]["Not_Ok+"]+$info_poste[$poste["nom_poste"]]["status"]["Not_Ok-"]>0)
-		{
-			$info_poste[$poste["nom_poste"]]["info"]["status"]=2;
-			$info_parc["Not_Ok"]++;
-		}
-		else if ($info_poste[$poste["nom_poste"]]["status"]["MaJ"]>0)
-		{
-			$info_poste[$poste["nom_poste"]]["info"]["status"]=1;
-			$info_parc["MaJ"]++;
-		}
-		else
-		{
-			$info_poste[$poste["nom_poste"]]["info"]["status"]=0;
-			$info_parc["Ok"]++;
+			case 0:
+				$info_parc["Ok"]++; break;
+			case 1:
+				$info_parc["MaJ"]++; break;
+			case 2:
+				$info_parc["Not_Ok"]++; break;
 		}
 		$info_parc["Total"]++;
 	}

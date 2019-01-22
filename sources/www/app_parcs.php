@@ -243,7 +243,7 @@
 	echo "</tr>\n";
 	echo "<tr bgcolor='white' height='30' valing='center'>";
 	echo "<td align='center'>";
-		echo $get_parc."<br>";
+		echo "<a href='parc_statuts.php?parc=".$get_parc."' style='color: ".$lnk."'>".$get_parc."</a><br>";
 		echo "<select name='parc'>";
 		foreach ($liste_parcs as $l_parc)
 		{

@@ -14,6 +14,7 @@ info_postes() : liste des postes
 info_poste_parcs($nom_poste) : liste des parcs d'un poste
 info_poste_applications($nom_poste) : liste des applications d'un poste
 info_poste_rapport($nom_poste) : liste des informations issus des rapports d'un poste
+info_poste_statut($id_poste, $list_app) : renvoi l'etat du poste avec les infos ok, not_ok+/-, maj...
 info_parcs() : liste des parcs
 info_parc_postes($nom_parc) : liste des postes d'un parc
 info_sha_postes() : liste des rapports et leur hashage
@@ -234,6 +235,50 @@ function info_poste_rapport($nom_poste)
 	return $tab;
 }
 
+function info_poste_statut($id_poste, $list_app)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$app_ids="0";
+	if ($list_app)
+	{
+		foreach ($list_app as $id)
+		{
+			$app_ids.=",".($id+0);
+		}
+	}
+	$query = mysqli_prepare($wpkg_link, "SELECT IF(ISNULL(a2.id_app)=0,IF(ISNULL(pa.id_app)=1,2,IF(pa.statut_poste_app='Not installed',2,IF(a2.version_app=pa.revision_poste_app,0,1))),3) as statut, count(*) as NB FROM (applications a)
+											LEFT JOIN (applications a2) ON a.id_app = a2.id_app and a2.id_app in (".$app_ids.")
+											LEFT JOIN (poste_app pa) ON pa.id_app=a.id_app AND pa.id_poste=?
+											WHERE (a2.id_app is not null OR pa.statut_poste_app='Installed') AND a.active_app=1
+											GROUP BY statut ASC");
+	mysqli_stmt_bind_param($query,"i", $id_poste);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_statut, $res_nb);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array("MaJ"=>0,"Not_Ok-"=>0,"Ok"=>0,"Not_Ok+"=>0,"Status"=>0);
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			switch ($res_statut)
+			{
+				case 0:
+					$tab["Ok"]=$res_nb; break;
+				case 1:
+					$tab["MaJ"]=$res_nb; $tab["status"]=max($tab["status"],1); break;
+				case 2:
+					$tab["Not_Ok-"]=$res_nb; $tab["status"]=2; break;
+				case 3:
+					$tab["Not_Ok+"]=$res_nb; $tab["status"]=2; break;
+			}
+		}
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 function info_parcs()
 {
     $wpkg_link=connexion_db_wpkg();
@@ -366,8 +411,9 @@ function info_application_postes($id_nom_appli)
 
 	$depend=array();
 	$tab=array();
+	$md5=hash('md5',$id_nom_appli);
 	$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app as id_app_dependance FROM (applications a) LEFT JOIN (dependance d) ON d.id_app_requise=a.id_app WHERE MD5(a.id_nom_app)=?");
-	mysqli_stmt_bind_param($query3,"s", hash('md5',$id_nom_appli));
+	mysqli_stmt_bind_param($query3,"s", $md5);
 	mysqli_stmt_execute($query3);
 	mysqli_stmt_bind_result($query3,$res_id_app,$res_id_app_dependance);
 	mysqli_stmt_store_result($query3);
@@ -475,8 +521,9 @@ function info_application_postes($id_nom_appli)
 function info_application_rapport($id_nom_appli)
 {
 	$wpkg_link=connexion_db_wpkg();
+	$md5=hash('md5',$id_nom_appli);
 	$query = mysqli_prepare($wpkg_link, "SELECT p.id_poste, p.nom_poste, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE MD5(a.id_nom_app)=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste ORDER BY p.nom_poste ASC");
-	mysqli_stmt_bind_param($query,"s", hash('md5',$id_nom_appli));
+	mysqli_stmt_bind_param($query,"s", $md5);
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_id_poste, $res_nom_poste, $res_revision_poste_app, $res_statut_poste_app, $res_reboot_poste_app);
 	mysqli_stmt_store_result($query);
