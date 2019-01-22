@@ -23,12 +23,34 @@
 															,"version_app"=>$appli["version_app"]
 															,"compatibilite_app"=>$appli["compatibilite_app"]
 															,"categorie_app"=>$appli["categorie_app"]
-															,"revision_poste_app"=>@$liste_poste_rapport[$key_md5]["revision_poste_app"]
-															,"statut_poste_app"=>@$liste_poste_rapport[$key_md5]["statut_poste_app"]
 															,"depend"=>@$liste_poste_app[$appli["id_app"]]["required_by"]
 															,"parc"=>@$liste_poste_app[$appli["id_app"]]["parc"]
 															,"poste"=>@$liste_poste_app[$appli["id_app"]]["poste"]
 															,"status_app"=>0);
+		if (isset($liste_poste_rapport[$key_md5]["revision_poste_app"]))
+		{
+			$liste_poste_infos["app"][$appli["id_app"]]["revision_poste_app"]=$liste_poste_rapport[$key_md5]["revision_poste_app"];
+		}
+		else
+		{
+			$liste_poste_infos["app"][$appli["id_app"]]["revision_poste_app"]="-";
+		}
+		if (isset($liste_poste_rapport[$key_md5]["statut_poste_app"]))
+		{
+			switch ($liste_poste_rapport[$key_md5]["statut_poste_app"])
+			{
+				case "Installed":
+					$liste_poste_infos["app"][$appli["id_app"]]["statut_poste_app"]="Install&#233;"; break;
+				case "Not Installed":
+					$liste_poste_infos["app"][$appli["id_app"]]["statut_poste_app"]="Non Install&#233;"; break;
+				default:
+					$liste_poste_infos["app"][$appli["id_app"]]["statut_poste_app"]="Inconnu"; break;
+			}
+		}
+		else
+		{
+			$liste_poste_infos["app"][$appli["id_app"]]["statut_poste_app"]="Inconnu";
+		}
 		if (array_key_exists($appli["id_app"],$liste_poste_app))
 		{
 			if (!isset($liste_poste_rapport[$key_md5]["statut_poste_app"]))
@@ -60,6 +82,10 @@
 			$liste_poste_infos["app"][$appli["id_app"]]["status_app"]=2;
 			$liste_poste_infos["status"]["Not_Ok+"]++;
 			$liste_poste_infos["info"]["status"]=max($liste_poste_infos["info"]["status"],2);
+		}
+		else
+		{
+			$liste_poste_infos["app"][$appli["id_app"]]["status_app"]=4;
 		}
 	}
 
