@@ -27,5 +27,6 @@
 	$new_host->setAttribute("profile-id",$nom_poste);
 
 	$xml_host->encoding = 'UTF-8';
+	echo header('Content-type: text/xml');
 	echo $xml_host->saveXML();
 ?>

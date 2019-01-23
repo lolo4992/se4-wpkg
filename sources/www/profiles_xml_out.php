@@ -32,8 +32,9 @@
 		$new_package2 = $new_profile->appendChild($new_package);
 		$new_package2->setAttribute("package-id", $info_app["info_app"]["id_nom_app"]);
 	}
-	
+
 	$xml_profile->encoding = 'UTF-8';
+	echo header('Content-type: text/xml');
 	echo $xml_profile->saveXML();
 
 ?>
