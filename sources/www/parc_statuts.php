@@ -256,7 +256,7 @@
 			echo "<td align='center'>".$lp["info"]["nb_app"]."</td>";
 			echo "<td align='center'>".$lp["status"]["MaJ"]."</td>";
 			echo "<td align='center'>(-".$lp["status"]["Not_Ok-"]."/+".$lp["status"]["Not_Ok+"].")</td>";
-			echo "<td align='center'><a href='index.php?logfile=".$lp["info"]["logfile"]."' target='rapport_poste' style='color: ".$lnk."'>".$lp["info"]["date"]." à ".$lp["info"]["time"]."</a></td>";
+			echo "<td align='center'><a href='log.php?logfile=".$lp["info"]["logfile"]."' target='rapport_poste' style='color: ".$lnk."'>".$lp["info"]["date"]." à ".$lp["info"]["time"]."</a></td>";
 			echo "<td align='center'>".$lp["info"]["ip"]."</td>";
 			echo "<td align='center'>".$lp["info"]["mac"]."</td>";
 			echo "</tr>\n";

@@ -364,7 +364,7 @@
 			echo "</td>";
 			echo "<td align='center'>".$lp["status"]."</td>";
 			echo "<td align='center'>".$lp["revision"]."</td>";
-			echo "<td align='center'><a href='index.php?logfile=".$lp["logfile"]."' target='rapport_poste' style='color: ".$lp["lnk"]."'>".$lp["date"]." à ".$lp["time"]."</a></td>";
+			echo "<td align='center'><a href='log.php?logfile=".$lp["logfile"]."' target='rapport_poste' style='color: ".$lp["lnk"]."'>".$lp["date"]." à ".$lp["time"]."</a></td>";
 			echo "<td align='center'>".$lp["ip"]."</td>";
 			echo "<td align='center'>".$lp["mac"]."</td>";
 			echo "</tr>\n";

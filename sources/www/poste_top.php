@@ -183,7 +183,7 @@
 	}
 	echo '" width="30" height="30">';
 	echo "</td>";
-	echo "<td align='center' style='color:".$status_txt."'><a href='index.php?logfile=".$liste_poste_infos["info"]["logfile"]."'  style='color: ".$status_lnk."' target='rapport'>".$liste_poste_infos["info"]["date"]." &#0224; ".$liste_poste_infos["info"]["time"]."</a></td>";
+	echo "<td align='center' style='color:".$status_txt."'><a href='log.php?logfile=".$liste_poste_infos["info"]["logfile"]."'  style='color: ".$status_lnk."' target='rapport'>".$liste_poste_infos["info"]["date"]." &#0224; ".$liste_poste_infos["info"]["time"]."</a></td>";
 	echo "<td align='center' style='color:".$status_txt."'>".$liste_poste_infos["info"]["ip"]."</td>";
 	echo "<td align='center' style='color:".$status_txt."'>".$liste_poste_infos["info"]["mac"]."</td>";
 	echo "<td style='color:".$status_txt."'>";
