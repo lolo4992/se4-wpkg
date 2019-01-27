@@ -117,14 +117,19 @@ function info_poste_applications($nom_poste)
 {
 	$wpkg_link=connexion_db_wpkg();
 
-	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (`postes` po, `applications_profile` ap, `applications` a)
-	WHERE po.nom_poste=? AND a.id_app=ap.id_appli AND po.id_poste=ap.id_entite AND ap.type_entite='poste' AND a.active_app=1");
+	$query = mysqli_prepare($wpkg_link,"SELECT ap.type_entite, a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app, p.id_parc, p.nom_parc, p.nom_parc_wpkg, count(distinct d.id_app_requise) as NB_DEP
+										FROM (`postes` po, `parc` p, `parc_profile` pp)
+										LEFT JOIN (`applications_profile` ap, `applications` a) ON a.id_app=ap.id_appli AND a.active_app=1 AND ((po.id_poste=ap.id_entite AND ap.type_entite='poste') OR (pp.id_parc=ap.id_entite AND ap.type_entite='parc'))
+										LEFT JOIN (`dependance` d) ON d.id_app=a.id_app
+										WHERE po.nom_poste=? AND po.id_poste=pp.id_poste AND p.id_parc=pp.id_parc AND a.id_app is not NULL
+										GROUP BY ap.type_entite, a.id_app, ap.id_entite");
 	mysqli_stmt_bind_param($query,"s", $nom_poste);
 	mysqli_stmt_execute($query);
-	mysqli_stmt_bind_result($query,$res_id_app, $res_id_nom_app, $res_nom_app, $res_version_app, $res_compatibilite_app, $res_categorie_app, $res_prorite_app, $res_reboot_app, $res_sha_app);
+	mysqli_stmt_bind_result($query,$res_type_entite, $res_id_app, $res_id_nom_app, $res_nom_app, $res_version_app, $res_compatibilite_app, $res_categorie_app, $res_prorite_app, $res_reboot_app, $res_sha_app, $res_id_parc, $res_nom_parc, $res_nom_parc_wpkg, $res_nb_dep);
 	mysqli_stmt_store_result($query);
 	$num_rows=mysqli_stmt_num_rows($query);
 	$tab=array();
+	$list_app_dep=array();
 	if ($num_rows!=0)
 	{
 		while (mysqli_stmt_fetch($query))
@@ -138,43 +143,21 @@ function info_poste_applications($nom_poste)
 												,"prorite_app"=>$res_prorite_app
 												,"reboot_app"=>$res_reboot_app
 												,"sha_app"=>$res_sha_app);
-			$tab[$res_id_app]["poste"][]=$nom_poste;
+			if ($res_type_entite=="poste")
+				$tab[$res_id_app]["poste"]=$nom_poste;
+			elseif ($res_type_entite=="parc")
+				$tab[$res_id_app]["parc"][$res_nom_parc] = array("id_parc"=>$res_id_parc
+																,"nom_parc"=>$res_nom_parc
+																,"nom_parc_wpkg"=>$res_nom_parc_wpkg);
+			if ($res_nb_dep>0)
+				$list_app_dep[$res_id_app]=$res_id_app;
 		}
-
 	}
 	mysqli_stmt_close($query);
 
-	$query2 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app, p.id_parc, p.nom_parc, p.nom_parc_wpkg FROM (`postes` po, `applications_profile` ap, `applications` a, `parc_profile` pp, `parc` p)
-	WHERE po.nom_poste=? AND po.id_poste=pp.id_poste AND a.id_app=ap.id_appli AND pp.id_parc=ap.id_entite AND ap.type_entite='parc' AND p.id_parc=pp.id_parc AND a.active_app=1");
-	mysqli_stmt_bind_param($query2,"s", $nom_poste);
-	mysqli_stmt_execute($query2);
-	mysqli_stmt_bind_result($query2,$res_id_app2, $res_id_nom_app2, $res_nom_app2, $res_version_app2, $res_compatibilite_app2, $res_categorie_app2, $res_prorite_app2, $res_reboot_app2, $res_sha_app2, $res_id_parc2, $res_nom_parc2, $res_nom_parc_wpkg2);
-	mysqli_stmt_store_result($query2);
-	$num_rows2=mysqli_stmt_num_rows($query2);
-	if ($num_rows2!=0)
+	if ($list_app_dep)
 	{
-		while (mysqli_stmt_fetch($query2))
-		{
-			$tab[$res_id_app2]["info_app"]=array("id_app"=>$res_id_app2
-												,"id_nom_app"=>$res_id_nom_app2
-												,"nom_app"=>$res_nom_app2
-												,"version_app"=>$res_version_app2
-												,"compatibilite_app"=>$res_compatibilite_app2
-												,"categorie_app"=>$res_categorie_app2
-												,"prorite_app"=>$res_prorite_app2
-												,"reboot_app"=>$res_reboot_app2
-												,"sha_app"=>$res_sha_app2);
-			$tab[$res_id_app2]["parc"][$res_nom_parc2]=array("id_parc"=>$res_id_parc2
-															,"nom_parc"=>$res_nom_parc2
-															,"nom_parc_wpkg"=>$res_nom_parc_wpkg2);
-		}
-
-	}
-	mysqli_stmt_close($query2);
-
-	if ($tab)
-	{
-		foreach ($tab as $id_app=>$tmp)
+		foreach ($list_app_dep as $id_app=>$tmp)
 		{
 			$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (applications a, dependance d)
 			WHERE d.id_app=? AND d.id_app_requise=a.id_app");
@@ -196,7 +179,7 @@ function info_poste_applications($nom_poste)
 														,"prorite_app"=>$res_prorite_app3
 														,"reboot_app"=>$res_reboot_app3
 														,"sha_app"=>$res_sha_app3);
-					$tab[$res_id_app3]["required_by"][$id_app]=$tmp["info_app"];
+					$tab[$res_id_app3]["required_by"][$id_app]=$tab[$id_app]["info_app"];
 				}
 			}
 			mysqli_stmt_close($query3);
