@@ -84,7 +84,6 @@
 		global $wpkgroot,$wpkgroot2;
 		$fileName = basename($fileTarget);
 		$direName = dirname($fileTarget);
-		$handle = popen("/usr/bin/wget --progress=dot -O '".$wpkgroot."/tmp2/".$fileName."' ".$fileUrl." 2>&1", 'r');
 		$download=0;
 		$etat=0;
 		if (file_exists($wpkgroot2."/".$fileTarget))
@@ -126,6 +125,7 @@
 		}
 		if ($download==1)
 		{
+			$handle = popen("/usr/bin/wget --progress=dot -O '".$wpkgroot."/tmp2/".$fileName."' ".$fileUrl." 2>&1", 'r');
 			if (is_resource($handle))
 			{
 				$timestamp = microtime_float();
