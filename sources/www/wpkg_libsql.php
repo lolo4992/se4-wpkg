@@ -17,6 +17,7 @@ info_poste_rapport($nom_poste) : liste des informations issus des rapports d'un 
 info_poste_statut($id_poste, $list_app) : renvoi l'etat du poste avec les infos ok, not_ok+/-, maj...
 info_parcs() : liste des parcs
 info_parc_postes($nom_parc) : liste des postes d'un parc
+info_parc_appli($nom_parc) : liste des appli d'un parc
 info_sha_postes() : liste des rapports et leur hashage
 liste_applications() : liste des applications
 info_application_postes($id_appli) : liste des postes devant avoir l'application
@@ -307,6 +308,39 @@ function info_parc_postes($nom_parc)
 										,"ip_poste"=>$res_ip_poste
 										,"mac_address_poste"=>$res_mac_address_poste
 										,"file_log_poste"=>$res_file_log_poste);
+		}
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_parc_appli($nom_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.prorite_app, a.reboot_app, a.sha_app, a.categorie_app
+											FROM (`applications_profile` ap, `applications` a, `parc` p)
+											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=?
+											ORDER BY nom_app ASC");
+	mysqli_stmt_bind_param($query,"s", $nom_parc);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app,$res_id_nom_app,$res_nom_app,$res_version_app,$res_compatibilite_app,$res_prorite_app,$res_reboot_app, $res_sha_app, $res_categorie_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_id_app] =array("id_app"=>$res_id_app
+									,"id_nom_app"=>$res_id_nom_app
+									,"nom_app"=>$res_nom_app
+									,"version_app"=>$res_version_app
+									,"compatibilite_app"=>$res_compatibilite_app
+									,"categorie_app"=>$res_categorie_app
+									,"prorite_app"=>$res_prorite_app
+									,"reboot_app"=>$res_reboot_app
+									,"sha_app"=>$res_sha_app);
 		}
 	}
 	mysqli_stmt_close($query);
