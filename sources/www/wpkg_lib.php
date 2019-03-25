@@ -34,7 +34,10 @@
 // Liste des applications protegees
 
 	$list_protected_app=array("wsusoffline", "ocs-client");
-	
+
+// localisation des repertoires
+
+	$url_packages = "/var/se3/unattended/install/wpkg/packages.xml";
 	$wpkgroot="/var/se3/unattended/install/wpkg";
 	$wpkgwebdir="/var/www/se3/wpkg2";
 	$wpkgroot2="/var/se3/unattended/install";

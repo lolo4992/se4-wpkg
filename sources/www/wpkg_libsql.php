@@ -631,7 +631,9 @@ function insert_applications($list_appli)
 	mysqli_stmt_bind_param($update_query,"sssisiii", $list_appli["id_nom_app"], $list_appli["nom_app"], $list_appli["version_app"], $list_appli["compatibilite_app"], $list_appli["categorie_app"], $list_appli["prorite_app"], $list_appli["reboot_app"], $list_appli["active_app"]);
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
+	$id=mysqli_insert_id($wpkg_link);
 	deconnexion_db_wpkg($wpkg_link);
+	return $id;
 }
 
 function update_applications($id_app,$list_appli)
