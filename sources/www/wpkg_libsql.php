@@ -18,6 +18,7 @@ info_poste_statut($id_poste, $list_app) : renvoi l'etat du poste avec les infos 
 info_parcs() : liste des parcs
 info_parc_postes($nom_parc) : liste des postes d'un parc
 info_parc_appli($nom_parc) : liste des appli d'un parc
+info_parc_appli_full($nom_parc) : liste des appli d'un parc + dependance necessaire
 info_sha_postes() : liste des rapports et leur hashage
 liste_applications() : liste des applications
 info_application_postes($id_appli) : liste des postes devant avoir l'application
@@ -40,6 +41,7 @@ insert_application_profile($type_entite,$id_entite,$id_appli) : ajout d'une appl
 insert_parc_profile($id_poste,$id_parc) : ajout d'un poste a un parc
 delete_parc_profile($id_poste,$id_parc) : suppression d'un parc d'un parc
 insert_parc($nom_parc) : ajout d'un parc
+set_parc_apps($list_id_appli,$nom_parc) : definir les applications d'un parc
 
 ----------------------------------------------------------------------------------------------------
 */
@@ -341,6 +343,36 @@ function info_parc_appli($nom_parc)
 									,"prorite_app"=>$res_prorite_app
 									,"reboot_app"=>$res_reboot_app
 									,"sha_app"=>$res_sha_app);
+		}
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_parc_appli_full($nom_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app_requise, a.id_nom_app
+											FROM (`applications_profile` ap, `applications` a, `parc` p)
+											LEFT JOIN (dependance d) ON d.id_app=a.id_app
+											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=?
+											ORDER BY nom_app ASC");
+	mysqli_stmt_bind_param($query,"s", $nom_parc);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app,$res_id_app_requise,$res_id_nom_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_id_app]["parc"]=$nom_parc;
+			if ($res_id_app_requise)
+			{
+				$tab[$res_id_app_requise]["depends"][]=$res_id_nom_app;
+			}
 		}
 	}
 	mysqli_stmt_close($query);
@@ -767,6 +799,72 @@ function insert_parc($nom_parc)
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
 	return $id;
+}
+
+function set_parc_apps($list_id_appli,$nom_parc)
+{
+	$wpkg_link=connexion_db_wpkg();
+
+	$query = mysqli_prepare($wpkg_link, "SELECT p.id_parc FROM (`parc` p)  WHERE p.nom_parc=?");
+	mysqli_stmt_bind_param($query,"s", $nom_parc);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_parc);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$id_parc = $res_id_parc;
+		}
+	}
+	else
+	{
+		$id_parc = 0;
+	}
+	mysqli_stmt_close($query);
+
+	$result=array("out"=>0,"in"=>0);
+
+	if ($id_parc!=0)
+	{
+		$list_app="(0"; $i=0;
+		foreach ($list_id_appli as $id_appli)
+		{
+			$id_app_tmp=$id_appli+0;
+			$list_app.=",";
+			$list_app.=$id_app_tmp;
+			$i++;
+			$flag_app=0;
+			if ($id_app_tmp!=0)
+			{
+				$query = mysqli_prepare($wpkg_link, "SELECT * FROM (`applications_profile` ap) WHERE ap.id_entite=? AND ap.type_entite='parc' AND ap.id_appli=?");
+				mysqli_stmt_bind_param($query,"ii", $id_parc, $id_app_tmp);
+				mysqli_stmt_execute($query);
+				mysqli_stmt_store_result($query);
+				$flag_app=mysqli_stmt_num_rows($query);
+				mysqli_stmt_close($query);
+
+				if ($flag_app==0)
+				{
+					$insert_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications_profile` (`id_appli`,`type_entite`,`id_entite`) VALUES (?,'parc',?)");
+					mysqli_stmt_bind_param($insert_query,"ii", $id_app_tmp, $id_parc);
+					mysqli_stmt_execute($insert_query);
+					mysqli_stmt_close($insert_query);
+					$result["in"]++;
+				}
+			}
+		}
+		$list_app.=")";
+
+		$delete_query = mysqli_prepare($wpkg_link,"DELETE FROM `applications_profile` WHERE type_entite='parc' AND id_appli not in ".$list_app." AND id_entite=".$id_parc);
+		mysqli_stmt_execute($delete_query);
+		$result["out"]=mysqli_stmt_affected_rows($delete_query);
+		mysqli_stmt_close($delete_query);
+	}
+	deconnexion_db_wpkg($wpkg_link);
+	return $result;
 }
 
 ?>
