@@ -82,7 +82,7 @@
 		else
 			$post_appli=array();
 
-		$tmp_result_xml=set_parc_apps($post_appli,$get_parc);
+		$tmp_result_xml=set_entite_apps($post_appli,$get_parc,"parc");
 
 		$result_xml="<center>Modification effectu&#233;e. ".$tmp_result_xml["in"]." application";
 		if ($tmp_result_xml["in"]>1)

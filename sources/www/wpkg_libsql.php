@@ -41,7 +41,7 @@ insert_application_profile($type_entite,$id_entite,$id_appli) : ajout d'une appl
 insert_parc_profile($id_poste,$id_parc) : ajout d'un poste a un parc
 delete_parc_profile($id_poste,$id_parc) : suppression d'un parc d'un parc
 insert_parc($nom_parc) : ajout d'un parc
-set_parc_apps($list_id_appli,$nom_parc) : definir les applications d'un parc
+set_entite_apps($list_id_appli,$nom_entite,$type_entite) : definir les applications d'une entite (poste ou parc)
 
 ----------------------------------------------------------------------------------------------------
 */
@@ -801,33 +801,52 @@ function insert_parc($nom_parc)
 	return $id;
 }
 
-function set_parc_apps($list_id_appli,$nom_parc)
+function set_entite_apps($list_id_appli,$nom_entite,$type_entite)
 {
 	$wpkg_link=connexion_db_wpkg();
 
-	$query = mysqli_prepare($wpkg_link, "SELECT p.id_parc FROM (`parc` p)  WHERE p.nom_parc=?");
-	mysqli_stmt_bind_param($query,"s", $nom_parc);
-	mysqli_stmt_execute($query);
-	mysqli_stmt_bind_result($query,$res_id_parc);
-	mysqli_stmt_store_result($query);
-	$num_rows=mysqli_stmt_num_rows($query);
-	$tab=array();
-	if ($num_rows!=0)
+	if ($type_entite=="parc")
 	{
-		while (mysqli_stmt_fetch($query))
-		{
-			$id_parc = $res_id_parc;
-		}
+		$query = mysqli_prepare($wpkg_link, "SELECT p.id_parc FROM (`parc` p)  WHERE p.nom_parc=?");
+	}
+	elseif ($type_entite=="poste")
+	{
+		$query = mysqli_prepare($wpkg_link, "SELECT p.id_poste FROM (`postes` p)  WHERE p.nom_poste=?");
 	}
 	else
 	{
-		$id_parc = 0;
+		$query="";
 	}
-	mysqli_stmt_close($query);
+	
+	if ($query!="")
+	{
+		mysqli_stmt_bind_param($query,"s", $nom_entite);
+		mysqli_stmt_execute($query);
+		mysqli_stmt_bind_result($query,$res_id_entite);
+		mysqli_stmt_store_result($query);
+		$num_rows=mysqli_stmt_num_rows($query);
+		$tab=array();
+		if ($num_rows!=0)
+		{
+			while (mysqli_stmt_fetch($query))
+			{
+				$id_entite = $res_id_entite;
+			}
+		}
+		else
+		{
+			$id_entite = 0;
+		}
+		mysqli_stmt_close($query);
+	}
+	else
+	{
+		$id_entite = 0;
+	}
 
 	$result=array("out"=>0,"in"=>0);
 
-	if ($id_parc!=0)
+	if ($id_entite!=0)
 	{
 		$list_app="(0"; $i=0;
 		foreach ($list_id_appli as $id_appli)
@@ -839,8 +858,8 @@ function set_parc_apps($list_id_appli,$nom_parc)
 			$flag_app=0;
 			if ($id_app_tmp!=0)
 			{
-				$query = mysqli_prepare($wpkg_link, "SELECT * FROM (`applications_profile` ap) WHERE ap.id_entite=? AND ap.type_entite='parc' AND ap.id_appli=?");
-				mysqli_stmt_bind_param($query,"ii", $id_parc, $id_app_tmp);
+				$query = mysqli_prepare($wpkg_link, "SELECT * FROM (`applications_profile` ap) WHERE ap.id_entite=? AND ap.type_entite=? AND ap.id_appli=?");
+				mysqli_stmt_bind_param($query,"isi", $id_entite, $type_entite, $id_app_tmp);
 				mysqli_stmt_execute($query);
 				mysqli_stmt_store_result($query);
 				$flag_app=mysqli_stmt_num_rows($query);
@@ -848,8 +867,8 @@ function set_parc_apps($list_id_appli,$nom_parc)
 
 				if ($flag_app==0)
 				{
-					$insert_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications_profile` (`id_appli`,`type_entite`,`id_entite`) VALUES (?,'parc',?)");
-					mysqli_stmt_bind_param($insert_query,"ii", $id_app_tmp, $id_parc);
+					$insert_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications_profile` (`id_appli`,`type_entite`,`id_entite`) VALUES (?,?,?)");
+					mysqli_stmt_bind_param($insert_query,"isi", $id_app_tmp, $type_entite, $id_entite);
 					mysqli_stmt_execute($insert_query);
 					mysqli_stmt_close($insert_query);
 					$result["in"]++;
@@ -858,7 +877,7 @@ function set_parc_apps($list_id_appli,$nom_parc)
 		}
 		$list_app.=")";
 
-		$delete_query = mysqli_prepare($wpkg_link,"DELETE FROM `applications_profile` WHERE type_entite='parc' AND id_appli not in ".$list_app." AND id_entite=".$id_parc);
+		$delete_query = mysqli_prepare($wpkg_link,"DELETE FROM `applications_profile` WHERE type_entite='".$type_entite."' AND id_appli not in ".$list_app." AND id_entite=".$id_entite);
 		mysqli_stmt_execute($delete_query);
 		$result["out"]=mysqli_stmt_affected_rows($delete_query);
 		mysqli_stmt_close($delete_query);
