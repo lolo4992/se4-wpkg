@@ -164,7 +164,7 @@ function info_poste_applications($nom_poste)
 		foreach ($list_app_dep as $id_app=>$tmp)
 		{
 			$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.categorie_app, a.prorite_app, a.reboot_app, a.sha_app FROM (applications a, dependance d)
-			WHERE d.id_app=? AND d.id_app_requise=a.id_app");
+			WHERE d.id_app=? AND d.id_app_requise=a.id_app AND a.active_app=1");
 			mysqli_stmt_bind_param($query3,"i", $id_app);
 			mysqli_stmt_execute($query3);
 			mysqli_stmt_bind_result($query3,$res_id_app3, $res_id_nom_app3, $res_nom_app3, $res_version_app3, $res_compatibilite_app3, $res_categorie_app3, $res_prorite_app3, $res_reboot_app3, $res_sha_app3);
@@ -201,7 +201,7 @@ function info_poste_appli_full($nom_poste)
 	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app_requise, a.id_nom_app
 											FROM (`applications_profile` ap, `applications` a, `postes` p)
 											LEFT JOIN (dependance d) ON d.id_app=a.id_app
-											WHERE p.id_poste=ap.id_entite AND type_entite='poste' AND ap.id_appli=a.id_app AND p.nom_poste=?
+											WHERE p.id_poste=ap.id_entite AND type_entite='poste' AND ap.id_appli=a.id_app AND p.nom_poste=? AND a.active_app=1
 											ORDER BY nom_app ASC");
 	mysqli_stmt_bind_param($query,"s", $nom_poste);
 	mysqli_stmt_execute($query);
@@ -228,7 +228,7 @@ function info_poste_appli_full($nom_poste)
 function info_poste_rapport($nom_poste)
 {
 	$wpkg_link=connexion_db_wpkg();
-	$query = mysqli_prepare($wpkg_link, "SELECT a.id_nom_app, a.nom_app, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE p.nom_poste=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste ORDER BY a.id_nom_app ASC");
+	$query = mysqli_prepare($wpkg_link, "SELECT a.id_nom_app, a.nom_app, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE p.nom_poste=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste AND a.active_app=1 ORDER BY a.id_nom_app ASC");
 	mysqli_stmt_bind_param($query,"s", $nom_poste);
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_id_nom_app, $res_nom_app, $res_revision_poste_app, $res_statut_poste_app, $res_reboot_poste_app);
@@ -353,7 +353,7 @@ function info_parc_appli($nom_parc)
 	$wpkg_link=connexion_db_wpkg();
 	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, a.id_nom_app, a.nom_app, a.version_app, a.compatibilite_app, a.prorite_app, a.reboot_app, a.sha_app, a.categorie_app
 											FROM (`applications_profile` ap, `applications` a, `parc` p)
-											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=?
+											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=? AND a.active_app=1
 											ORDER BY nom_app ASC");
 	mysqli_stmt_bind_param($query,"s", $nom_parc);
 	mysqli_stmt_execute($query);
@@ -387,7 +387,7 @@ function info_parc_appli_full($nom_parc)
 	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app_requise, a.id_nom_app
 											FROM (`applications_profile` ap, `applications` a, `parc` p)
 											LEFT JOIN (dependance d) ON d.id_app=a.id_app
-											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=?
+											WHERE p.id_parc=ap.id_entite AND type_entite='parc' AND ap.id_appli=a.id_app AND p.nom_parc=? AND a.active_app=1
 											ORDER BY nom_app ASC");
 	mysqli_stmt_bind_param($query,"s", $nom_parc);
 	mysqli_stmt_execute($query);
@@ -436,7 +436,7 @@ function info_sha_postes()
 function liste_applications()
 {
 	$wpkg_link=connexion_db_wpkg();
-	$query = mysqli_prepare($wpkg_link, "SELECT id_app, id_nom_app, nom_app, version_app, compatibilite_app, categorie_app, prorite_app, reboot_app, sha_app, date_modif_app, user_modif_app, active_app FROM applications");
+	$query = mysqli_prepare($wpkg_link, "SELECT id_app, id_nom_app, nom_app, version_app, compatibilite_app, categorie_app, prorite_app, reboot_app, sha_app, date_modif_app, user_modif_app, active_app FROM applications WHERE active_app=1");
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_id_app, $res_id_nom_app, $res_nom_app, $res_version_app, $res_compatibilite_app, $res_categorie_app, $res_prorite_app, $res_reboot_app, $res_sha_app, $res_date_modif_app, $res_user_modif_app, $res_active_app);
 	mysqli_stmt_store_result($query);
@@ -492,7 +492,7 @@ function info_application_postes($id_nom_appli)
 	$depend=array();
 	$tab=array();
 	$md5=hash('md5',$id_nom_appli);
-	$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app as id_app_dependance FROM (applications a) LEFT JOIN (dependance d) ON d.id_app_requise=a.id_app WHERE MD5(a.id_nom_app)=?");
+	$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app as id_app_dependance FROM (applications a) LEFT JOIN (dependance d) ON d.id_app_requise=a.id_app WHERE MD5(a.id_nom_app)=? AND a.active_app=1");
 	mysqli_stmt_bind_param($query3,"s", $md5);
 	mysqli_stmt_execute($query3);
 	mysqli_stmt_bind_result($query3,$res_id_app,$res_id_app_dependance);
@@ -602,7 +602,7 @@ function info_application_rapport($id_nom_appli)
 {
 	$wpkg_link=connexion_db_wpkg();
 	$md5=hash('md5',$id_nom_appli);
-	$query = mysqli_prepare($wpkg_link, "SELECT p.id_poste, p.nom_poste, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE MD5(a.id_nom_app)=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste ORDER BY p.nom_poste ASC");
+	$query = mysqli_prepare($wpkg_link, "SELECT p.id_poste, p.nom_poste, pa.revision_poste_app, pa.statut_poste_app, pa.reboot_poste_app FROM (`poste_app` pa, `applications` a, `postes` p)  WHERE MD5(a.id_nom_app)=? AND pa.id_app=a.id_app AND pa.id_poste=p.id_poste AND a.active_app=1 ORDER BY p.nom_poste ASC");
 	mysqli_stmt_bind_param($query,"s", $md5);
 	mysqli_stmt_execute($query);
 	mysqli_stmt_bind_result($query,$res_id_poste, $res_nom_poste, $res_revision_poste_app, $res_statut_poste_app, $res_reboot_poste_app);
