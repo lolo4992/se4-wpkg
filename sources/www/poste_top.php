@@ -110,7 +110,7 @@
 	}
 	else
 	{
-		echo "<th width='220'><a href='poste_maintenance.php?parc=".$id_host."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tri2=".$tri2."' style='color:".$regular_lnk."'>Gestion</a></th>";
+		echo "<th width='220'><a href='poste_maintenance.php?id_host=".$id_host."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tri2=".$tri2."' style='color:".$regular_lnk."'>Gestion</a></th>";
 	}
 	echo "</tr>\n";
 	echo "<tr bgcolor='black' height='30' valing='center'>";

@@ -13,6 +13,7 @@ deconnexion_db_wpkg($link) : deconnexion sql
 info_postes() : liste des postes
 info_poste_parcs($nom_poste) : liste des parcs d'un poste
 info_poste_applications($nom_poste) : liste des applications d'un poste
+info_poste_appli_full($nom_poste) : liste des applications requises sur le poste + dependances requises
 info_poste_rapport($nom_poste) : liste des informations issus des rapports d'un poste
 info_poste_statut($id_poste, $list_app) : renvoi l'etat du poste avec les infos ok, not_ok+/-, maj...
 info_parcs() : liste des parcs
@@ -190,6 +191,36 @@ function info_poste_applications($nom_poste)
 	}
 	ksort($tab);
 
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_poste_appli_full($nom_poste)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT a.id_app, d.id_app_requise, a.id_nom_app
+											FROM (`applications_profile` ap, `applications` a, `postes` p)
+											LEFT JOIN (dependance d) ON d.id_app=a.id_app
+											WHERE p.id_poste=ap.id_entite AND type_entite='poste' AND ap.id_appli=a.id_app AND p.nom_poste=?
+											ORDER BY nom_app ASC");
+	mysqli_stmt_bind_param($query,"s", $nom_poste);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_app,$res_id_app_requise,$res_id_nom_app);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_id_app]["poste"]=$nom_poste;
+			if ($res_id_app_requise)
+			{
+				$tab[$res_id_app_requise]["depends"][]=$res_id_nom_app;
+			}
+		}
+	}
+	mysqli_stmt_close($query);
 	deconnexion_db_wpkg($wpkg_link);
 	return $tab;
 }
@@ -817,7 +848,7 @@ function set_entite_apps($list_id_appli,$nom_entite,$type_entite)
 	{
 		$query="";
 	}
-	
+
 	if ($query!="")
 	{
 		mysqli_stmt_bind_param($query,"s", $nom_entite);
