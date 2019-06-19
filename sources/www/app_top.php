@@ -262,7 +262,7 @@
 	{
 		echo "<h1>Liste des applications du serveur</h1>";
 		if ($get_Appli=="")
-			$get_Appli=key($liste_apps);
+			$get_Appli=key($liste_appli);
 
 		echo "<table cellspadding='2' cellspacing='1' border='0' align='center' bgcolor='black'>\n";
 		echo "<tr bgcolor='white' height='30' valing='center'>";
@@ -273,12 +273,12 @@
 		echo "<tr bgcolor='black' height='30' valing='center'>";
 		echo "<th colspan='2'>";
 			echo "<select name='Appli'>";
-			foreach ($liste_apps as $key=>$value)
+			foreach ($liste_appli as $key=>$value)
 			{
-				echo "<option value='".$key."'";
-				if ($key==$get_Appli)
+				echo "<option value='".$value["id_nom_app"]."'";
+				if ($key==hash('md5',$get_Appli))
 					echo " selected";
-				echo ">".$value."</option>";
+				echo ">".$value["nom_app"]."</option>";
 			}
 			echo "</select>";
 		echo "</th>";
