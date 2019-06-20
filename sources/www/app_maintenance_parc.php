@@ -95,7 +95,7 @@
 		if ($tmp_result_xml["in"]>1)
 			$result_xml.="s";
 		$result_xml.=" et retir&#233;e sur ".$tmp_result_xml["out"]." parc";
-		if ($tmp_result_xml["in"]>1)
+		if ($tmp_result_xml["out"]>1)
 			$result_xml.="s";
 		$result_xml.=".</center><br>";
 	}
