@@ -547,7 +547,7 @@ function info_application_postes($id_nom_appli)
 													,"file_log_poste"=>$res_file_log_poste);
 			if ($res_id_app==$id_app)
 			{
-				$tab[$res_nom_poste]["poste"]=$nom_poste;
+				$tab[$res_nom_poste]["poste"]=$res_nom_poste;
 			}
 			else
 			{
