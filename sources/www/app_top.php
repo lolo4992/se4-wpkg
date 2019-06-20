@@ -267,22 +267,50 @@
 		echo "<table cellspadding='2' cellspacing='1' border='0' align='center' bgcolor='black'>\n";
 		echo "<tr bgcolor='white' height='30' valing='center'>";
 		echo "<th width='220' bgcolor='black' style='color:white'>Liste des Applications</th>";
-		echo "<th width='220'><a href='app_parcs.php?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tous=".$get_tous."&Appli=".$get_Appli."&tri2=".$tri2."' style='color:".$regular_lnk."'>Etat du déploiement</a></th>";
-		echo "<th width='220'><a href='app_maintenance.php?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tous=".$get_tous."&Appli=".$get_Appli."&tri2=".$tri2."' style='color:".$regular_lnk."'>Gestion</a></th>";
-		echo "</tr>\n";
-		echo "<tr bgcolor='black' height='30' valing='center'>";
-		echo "<th colspan='2'>";
-			echo "<select name='Appli'>";
+			$select_tmp = "";
+			$is_selected=0;
 			foreach ($liste_appli as $key=>$value)
 			{
-				echo "<option value='".$value["id_nom_app"]."'";
+				$select_tmp .= "<option value='".$value["id_nom_app"]."'";
 				if ($key==hash('md5',$get_Appli))
-					echo " selected";
-				echo ">".$value["nom_app"]."</option>";
+				{
+					$select_tmp .= " selected";
+					$is_selected=1;
+				}
+				$select_tmp .= ">".$value["nom_app"]."</option>";
 			}
-			echo "</select>";
+		echo "<th width='220'>";
+		if ($is_selected)
+		{
+			echo "<a href='app_parcs.php?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tous=".$get_tous."&Appli=".$get_Appli."&tri2=".$tri2."' style='color:".$regular_lnk."'>Etat du déploiement</a>";
+		}
+		else
+		{
+			echo "Etat du déploiement";
+		}
 		echo "</th>";
-		echo "<th><input type='submit' value='Valider' name='Valider'></th>";
+		echo "<th width='220'>";
+		if ($is_selected)
+		{
+			echo "<a href='app_maintenance.php?parc=".$get_parc."&warning=".$get_warning."&error=".$get_error."&ok=".$get_ok."&tous=".$get_tous."&Appli=".$get_Appli."&tri2=".$tri2."' style='color:".$regular_lnk."'>Gestion</a>";
+		}
+		else
+		{
+			echo "Gestion";
+		}
+		echo "</th>";
+		echo "</tr>\n";
+		echo "<tr bgcolor='black' height='30' valing='center'>\n";
+		echo "<th colspan='2'>";
+		echo "<select name='Appli'>";
+		if ($is_selected==0)
+		{
+			echo "<option value='' selected>-- Choisir une application pour accéder aux menus GESTION et ETAT --</option>";
+		}
+		echo $select_tmp;
+		echo "</select>";
+		echo "</th>\n";
+		echo "<th><input type='submit' value='Valider' name='Valider'></th>\n";
 		echo "</tr>\n";
 		echo "</table>\n";
 		echo "<br>\n";
