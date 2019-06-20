@@ -22,8 +22,10 @@ info_parc_appli($nom_parc) : liste des appli d'un parc
 info_parc_appli_full($nom_parc) : liste des appli d'un parc + dependance necessaire
 info_sha_postes() : liste des rapports et leur hashage
 liste_applications() : liste des applications
-info_application_postes($id_appli) : liste des postes devant avoir l'application
+info_application_postes($id_nom_appli) : liste des postes devant avoir l'application
+info_application_parcs($id_nom_appli) : liste des parcs devant avoir l'application sans dependance
 info_application_rapport($id_nom_appli) : liste des informations issus des rapports d'une application
+info_application_requiered_parc($id_appli) : liste des parcs ou l'application est requise par dependance
 
 ----------------------------------------------------------------------------------------------------
 
@@ -43,6 +45,7 @@ insert_parc_profile($id_poste,$id_parc) : ajout d'un poste a un parc
 delete_parc_profile($id_poste,$id_parc) : suppression d'un parc d'un parc
 insert_parc($nom_parc) : ajout d'un parc
 set_entite_apps($list_id_appli,$nom_entite,$type_entite) : definir les applications d'une entite (poste ou parc)
+set_appli_entites($list_id_entite,$type_entite,$id_nom_appli) : definir les entites (poste ou parc) d'une applications
 
 ----------------------------------------------------------------------------------------------------
 */
@@ -598,6 +601,30 @@ function info_application_postes($id_nom_appli)
 	return $tab;
 }
 
+function info_application_parcs($id_nom_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$md5=hash('md5',$id_nom_appli);
+	$query = mysqli_prepare($wpkg_link, "SELECT p.nom_parc FROM (`applications_profile` ap, `applications` a, `parc` p)  WHERE MD5(a.id_nom_app)=? AND a.active_app=1 AND ap.id_appli=a.id_app AND ap.type_entite='parc' AND ap.id_entite=p.id_parc GROUP BY p.id_parc ORDER BY p.nom_parc ASC");
+	mysqli_stmt_bind_param($query,"s", $md5);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_nom_parc);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[] = $res_nom_parc;
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 function info_application_rapport($id_nom_appli)
 {
 	$wpkg_link=connexion_db_wpkg();
@@ -618,6 +645,29 @@ function info_application_rapport($id_nom_appli)
 										,"revision_poste_app"=>$res_revision_poste_app
 										,"statut_poste_app"=>$res_statut_poste_app
 										,"reboot_poste_app"=>$res_reboot_poste_app);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_application_requiered_parc($id_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT p.nom_parc FROM (`dependance` d, `applications` a, `applications_profile` ap, `parc` p) WHERE d.id_app_requise=? AND ap.id_appli=d.id_app AND ap.type_entite='parc' AND a.id_app=d.id_app AND a.active_app=1 AND ap.id_entite=p.id_parc GROUP by p.id_parc ORDER BY p.nom_parc ASC");
+	mysqli_stmt_bind_param($query,"i", $id_appli);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_nom_parc);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[] = $res_id_nom_parc;
 		}
 
 	}
@@ -909,6 +959,73 @@ function set_entite_apps($list_id_appli,$nom_entite,$type_entite)
 		$list_app.=")";
 
 		$delete_query = mysqli_prepare($wpkg_link,"DELETE FROM `applications_profile` WHERE type_entite='".$type_entite."' AND id_appli not in ".$list_app." AND id_entite=".$id_entite);
+		mysqli_stmt_execute($delete_query);
+		$result["out"]=mysqli_stmt_affected_rows($delete_query);
+		mysqli_stmt_close($delete_query);
+	}
+	deconnexion_db_wpkg($wpkg_link);
+	return $result;
+}
+
+function set_appli_entites($list_id_entite,$type_entite,$id_nom_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+
+	$tab=array();
+	$md5=hash('md5',$id_nom_appli);
+	$query3 = mysqli_prepare($wpkg_link, "SELECT a.id_app FROM (applications a) WHERE MD5(a.id_nom_app)=? AND a.active_app=1");
+	mysqli_stmt_bind_param($query3,"s", $md5);
+	mysqli_stmt_execute($query3);
+	mysqli_stmt_bind_result($query3,$res_id_app);
+	mysqli_stmt_store_result($query3);
+	$num_rows3=mysqli_stmt_num_rows($query3);
+	if ($num_rows3!=0)
+	{
+		while (mysqli_stmt_fetch($query3))
+		{
+			$id_appli=$res_id_app;
+		}
+	}
+	else
+	{
+		$id_appli=0;
+	}
+	mysqli_stmt_close($query3);
+
+	$result=array("out"=>0,"in"=>0);
+
+	if ($id_appli!=0)
+	{
+		$list_entite="(0"; $i=0;
+		foreach ($list_id_entite as $id_entite)
+		{
+			$id_entite_tmp=$id_entite+0;
+			$list_entite.=",";
+			$list_entite.=$id_entite_tmp;
+			$i++;
+			$flag_entite=0;
+			if ($id_entite_tmp!=0)
+			{
+				$query = mysqli_prepare($wpkg_link, "SELECT * FROM (`applications_profile` ap) WHERE ap.id_entite=? AND ap.type_entite=? AND ap.id_appli=?");
+				mysqli_stmt_bind_param($query,"isi", $id_entite_tmp, $type_entite, $id_appli);
+				mysqli_stmt_execute($query);
+				mysqli_stmt_store_result($query);
+				$flag_app=mysqli_stmt_num_rows($query);
+				mysqli_stmt_close($query);
+
+				if ($flag_app==0)
+				{
+					$insert_query = mysqli_prepare($wpkg_link, "INSERT INTO `applications_profile` (`id_appli`,`type_entite`,`id_entite`) VALUES (?,?,?)");
+					mysqli_stmt_bind_param($insert_query,"isi", $id_appli, $type_entite, $id_entite_tmp);
+					mysqli_stmt_execute($insert_query);
+					mysqli_stmt_close($insert_query);
+					$result["in"]++;
+				}
+			}
+		}
+		$list_entite.=")";
+
+		$delete_query = mysqli_prepare($wpkg_link,"DELETE FROM `applications_profile` WHERE type_entite='".$type_entite."' AND id_appli=".$id_appli." AND id_entite not in ".$list_entite);
 		mysqli_stmt_execute($delete_query);
 		$result["out"]=mysqli_stmt_affected_rows($delete_query);
 		mysqli_stmt_close($delete_query);
