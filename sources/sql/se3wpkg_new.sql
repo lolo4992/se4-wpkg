@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Sam 15 Juin 2019 à 14:23
+-- Généré le :  Ven 21 Juin 2019 à 17:06
 -- Version du serveur :  5.5.59-0+deb7u1
 -- Version de PHP :  5.4.45-0+deb7u14
 
@@ -130,6 +130,20 @@ CREATE TABLE IF NOT EXISTS `journal_app` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `mise_en_forme`
+--
+
+CREATE TABLE IF NOT EXISTS `mise_en_forme` (
+  `id_mef` int(11) NOT NULL AUTO_INCREMENT,
+  `label_mef` varchar(25) NOT NULL,
+  `value_mef` varchar(6) NOT NULL,
+  PRIMARY KEY (`id_mef`),
+  UNIQUE KEY `label_mef` (`label_mef`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `parc`
 --
 
@@ -137,7 +151,8 @@ CREATE TABLE IF NOT EXISTS `parc` (
   `id_parc` int(11) NOT NULL AUTO_INCREMENT,
   `nom_parc` varchar(255) NOT NULL,
   `nom_parc_wpkg` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id_parc`)
+  PRIMARY KEY (`id_parc`),
+  UNIQUE KEY `nom_parc` (`nom_parc`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
