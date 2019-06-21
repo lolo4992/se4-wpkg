@@ -1,7 +1,7 @@
 <?php
 
-// définition des style couleurs par defaut
-
+/*
+// définition des style couleurs par defaut ==> deplacee dans wpkg_libsql.php
 	$warning_bg = "#FF0000";
 	$warning_txt = "#FFFFFF";
 	$warning_lnk = "#FFFF00";
@@ -30,6 +30,7 @@
 	$dep_no_bg = "#FFFFFF";
 	$dep_no_txt = "#000000";
 	$dep_no_lnk = "#FF0000";
+*/
 
 // Liste des applications protegees
 

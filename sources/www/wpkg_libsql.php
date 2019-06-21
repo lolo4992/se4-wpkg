@@ -5,6 +5,13 @@ $dbuser_wpkg='root';
 $dbpass_wpkg='XXXX';
 $dbname_wpkg='se3wpkg';
 
+// generation des couleurs de l'interface
+$mise_en_forme_perso=mise_en_forme_personnalisee();
+foreach ($mise_en_forme_perso as $key=>$value)
+{
+	${$key}=$value;
+}
+
 /*
 ----------------------------------------------------------------------------------------------------
 
@@ -26,6 +33,7 @@ info_application_postes($id_nom_appli) : liste des postes devant avoir l'applica
 info_application_parcs($id_nom_appli) : liste des parcs devant avoir l'application sans dependance
 info_application_rapport($id_nom_appli) : liste des informations issus des rapports d'une application
 info_application_requiered_parc($id_appli) : liste des parcs ou l'application est requise par dependance
+mise_en_forme_personnalisee() : mise en place de la mise en forme personnalisee
 
 ----------------------------------------------------------------------------------------------------
 
@@ -668,6 +676,28 @@ function info_application_requiered_parc($id_appli)
 		while (mysqli_stmt_fetch($query))
 		{
 			$tab[] = $res_id_nom_parc;
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function mise_en_forme_personnalisee()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT m.label_mef, m.value_mef FROM (`mise_en_forme` m) WHERE 1=1");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_label_mef,$res_value_mef);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_label_mef] = $res_value_mef;
 		}
 
 	}
