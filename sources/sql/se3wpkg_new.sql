@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Ven 21 Juin 2019 à 17:06
+-- Généré le :  Dim 23 Juin 2019 à 21:28
 -- Version du serveur :  5.5.59-0+deb7u1
 -- Version de PHP :  5.4.45-0+deb7u14
 
@@ -137,6 +137,8 @@ CREATE TABLE IF NOT EXISTS `mise_en_forme` (
   `id_mef` int(11) NOT NULL AUTO_INCREMENT,
   `label_mef` varchar(25) NOT NULL,
   `value_mef` varchar(6) NOT NULL,
+  `test_mef` varchar(6) NOT NULL,
+  `default_mef` varchar(6) NOT NULL,
   PRIMARY KEY (`id_mef`),
   UNIQUE KEY `label_mef` (`label_mef`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
