@@ -39,6 +39,55 @@
 	$page_id=1;
 	include("mef_top.php");
 
+	echo "<table align='center'>\n";
+	echo "<tr>\n";
+		echo "<td align='center'>";
+		echo "<a onclick=\"popuprecherche('mef_test.php','mef','scrollbars=no,width=800,height=500');\" style='color:".$regular_lnk.";'>Visualiser un apercu de la mise en forme personnalisée</a>";
+		echo "</td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
+		echo "<td align='center'>";
+		echo "<a onclick=\"popuprecherche('mef_actuel.php','mef','scrollbars=no,width=800,height=500');\" style='color:".$regular_lnk.";'>Visualiser un apercu de la mise en forme actuelle</a>";
+		echo "</td>\n";
+	echo "</tr>\n";
+	echo "</table>\n";
+
+ 	if (isset($_POST["action"]))
+		$post_action=$purifier->purify($_POST["action"]);
+	else
+		$post_action="";
+
+	if ($post_action=="Valider les modifications")
+	{
+		if (isset($_POST["new"]))
+		{
+			if (is_array($_POST["new"]))
+			{
+				$new=$_POST["new"];
+			}
+			else
+			{
+				$new=array();
+			}
+		}
+		else
+		{
+			$new=array();
+		}
+		foreach ($new as $key=>$value)
+		{
+			if (ctype_xdigit($value)==1 and strlen($value)==6)
+			{
+				update_mef($key,1,$value);
+			}
+			else
+			{
+				echo "<b>".$key." est non modifiable : la variable doit comporter 6 chiffres hexadécimaux.</b><br>";
+			}
+		}
+		echo "<br>";
+	}
+
 	$liste_mef=mise_en_forme_info();
 
 	echo "<form method='post' action=''>\n";
@@ -47,7 +96,7 @@
 		echo "<th width='200'>Intitul&#233;</th>";
 		echo "<th width='150'>Nom variable</th>";
 		echo "<th width='150'>Couleur actuelle</th>";
-		echo "<th width='150'>Couleur de test</th>";
+		echo "<th width='150'>Couleur personnalisée</th>";
 		echo "<th width='150'>Couleur par défaut</th>";
 	echo "</tr>\n";
 	// WARNING
@@ -59,7 +108,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -67,7 +116,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -75,7 +124,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// ERROR
@@ -87,7 +136,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -95,7 +144,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -103,7 +152,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// OK
@@ -115,7 +164,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -123,7 +172,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -131,7 +180,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "</tr>\n";
@@ -144,7 +193,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -152,7 +201,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -160,7 +209,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// dep_entite
@@ -172,7 +221,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -180,7 +229,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -188,7 +237,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// dep_parc
@@ -200,7 +249,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -208,7 +257,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -216,7 +265,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// dep_depend
@@ -228,7 +277,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -236,7 +285,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -244,7 +293,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	// dep_no
@@ -256,7 +305,7 @@
 		echo "<td>Couleur de fond</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#BBBBBB' style='color: #000000'>";
@@ -264,7 +313,7 @@
 		echo "<td>Couleur des caractères</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr bgcolor='#AAAAAA' style='color: #000000'>";
@@ -272,7 +321,7 @@
 		echo "<td>Couleur des liens</th>";
 		echo "<td align='center'>".$variable_mef."</th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["value"]."</th>";
-		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new_".$variable_mef."' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
+		echo "<td align='center'>".$liste_mef[$variable_mef]["test"]."<br><input name='new[".$variable_mef."]' value='".$liste_mef[$variable_mef]["test"]."' maxlength='6' size='6'></th>";
 		echo "<td align='center'>".$liste_mef[$variable_mef]["default"]."</th>";
 	echo "</tr>\n";
 	echo "<tr style='color:white'>";

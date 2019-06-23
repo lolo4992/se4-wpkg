@@ -55,6 +55,9 @@ delete_parc_profile($id_poste,$id_parc) : suppression d'un parc d'un parc
 insert_parc($nom_parc) : ajout d'un parc
 set_entite_apps($list_id_appli,$nom_entite,$type_entite) : definir les applications d'une entite (poste ou parc)
 set_appli_entites($list_id_entite,$type_entite,$id_nom_appli) : definir les entites (poste ou parc) d'une applications
+update_mef($label,$type,$valeur) : definir la valeur d'une variable de mise en forme
+update_mef_default() : choix de la mise en forme par defaut
+update_mef_test() : choix de la mise en forme personnalisee
 
 ----------------------------------------------------------------------------------------------------
 */
@@ -1084,6 +1087,46 @@ function set_appli_entites($list_id_entite,$type_entite,$id_nom_appli)
 	}
 	deconnexion_db_wpkg($wpkg_link);
 	return $result;
+}
+
+function update_mef($label,$type,$valeur)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$type=$type+0;
+	switch($type)
+	{
+		case 0: $update_query=""; break;
+		case 1: $update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `test_mef`=? WHERE `label_mef`=?"); break;
+		case 2: $update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `value_mef`=? WHERE `label_mef`=?"); break;
+		default: $update_query=""; break;
+	}
+	if ($update_query!="")
+	{
+		mysqli_stmt_bind_param($update_query,"ss", $valeur, $label);
+		mysqli_stmt_execute($update_query);
+		mysqli_stmt_close($update_query);
+	}
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function update_mef_defaut()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `value_mef`=`default_mef`");
+	mysqli_stmt_bind_param($update_query,"ss", $valeur, $label);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function update_mef_test()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `value_mef`=`test_mef`");
+	mysqli_stmt_bind_param($update_query,"ss", $valeur, $label);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
 }
 
 ?>
