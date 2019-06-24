@@ -1113,7 +1113,6 @@ function update_mef_defaut()
 {
 	$wpkg_link=connexion_db_wpkg();
 	$update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `value_mef`=`default_mef`");
-	mysqli_stmt_bind_param($update_query,"ss", $valeur, $label);
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
@@ -1123,7 +1122,6 @@ function update_mef_test()
 {
 	$wpkg_link=connexion_db_wpkg();
 	$update_query=mysqli_prepare($wpkg_link, "UPDATE `mise_en_forme` SET `value_mef`=`test_mef`");
-	mysqli_stmt_bind_param($update_query,"ss", $valeur, $label);
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
