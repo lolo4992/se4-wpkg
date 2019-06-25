@@ -72,9 +72,17 @@ foreach ($liste_rapport as $rapport_fichier)
 						$info["typewin"]="Windows XP";
 					else
 						$info["typewin"]="Autre";
+					
 					if ($uptodate==-1)
 					{
-						$id_poste=insert_poste_info_wpkg($info);
+						if (array_key_exists($info["nom_poste"],$liste_postes))
+						{
+							$id_poste=update_poste_info_wpkg($info);
+						}
+						else
+						{
+							$id_poste=insert_poste_info_wpkg($info);
+						}
 					}
 					else
 					{
