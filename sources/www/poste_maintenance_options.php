@@ -97,7 +97,7 @@
 		$new_file = fopen($filepath, "w");
 		foreach ($liste_options as $tmp_option)
 		{
-			fwrite($new_file, $tmp_option["name"]."=".$tmp_option["etat"]." ' ".$tmp_option["description"]."\n");
+			fwrite($new_file, $tmp_option["name"]."=".$tmp_option["etat"]." ' ".$tmp_option["description"]."\r\n");
 		}
 		fclose($new_file);
 	}
@@ -119,7 +119,7 @@
 				$tmp_etat="true";
 			else
 				$tmp_etat="false";
-			fwrite($new_file, $tmp_option["name"]."=".$tmp_etat." ' ".$tmp_option["description"]."\n");
+			fwrite($new_file, $tmp_option["name"]."=".$tmp_etat." ' ".$tmp_option["description"]."\r\n");
 		}
 		fclose($new_file);
 	}
