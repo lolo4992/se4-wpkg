@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Dim 23 Juin 2019 à 21:28
+-- Généré le :  Jeu 27 Juin 2019 à 17:28
 -- Version du serveur :  5.5.59-0+deb7u1
 -- Version de PHP :  5.4.45-0+deb7u14
 
@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS `depot` (
   `id_depot` int(11) NOT NULL AUTO_INCREMENT,
   `url_depot` varchar(255) NOT NULL,
   `nom_depot` varchar(255) NOT NULL,
+  `depot_actif` tinyint(4) NOT NULL,
+  `depot_principal` tinyint(4) NOT NULL,
   PRIMARY KEY (`id_depot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -93,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `depot` (
 --
 
 CREATE TABLE IF NOT EXISTS `depot_applications` (
-  `id_depot_applications` int(11) NOT NULL DEFAULT '0',
+  `id_depot_applications` int(11) NOT NULL AUTO_INCREMENT,
   `id_nom_app` varchar(255) NOT NULL,
   `nom_app` varchar(255) NOT NULL,
   `xml` varchar(255) NOT NULL,
@@ -106,8 +108,11 @@ CREATE TABLE IF NOT EXISTS `depot_applications` (
   `branche` varchar(20) NOT NULL,
   `date` datetime NOT NULL,
   `id_depot` int(11) NOT NULL,
-  PRIMARY KEY (`id_depot_applications`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id_depot_applications`),
+  KEY `id_depot` (`id_depot`,`branche`),
+  KEY `id_nom_app` (`id_nom_app`,`id_depot`,`branche`),
+  KEY `id_depot_2` (`id_depot`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 

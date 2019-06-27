@@ -35,6 +35,9 @@ info_application_rapport($id_nom_appli) : liste des informations issus des rappo
 info_application_requiered_parc($id_appli) : liste des parcs ou l'application est requise par dependance
 mise_en_forme_personnalisee() : mise en place de la mise en forme personnalisee
 mise_en_forme_info() : extraction de toutes les informations de mise en forme
+info_depot() : information des depots enregistres dans wpkg
+info_depot_appli($id_depot) : liste des applis d'un depot
+info_depot_principal() : liste des depots principaux (1 seul depot principal theoriquement)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -58,6 +61,9 @@ set_appli_entites($list_id_entite,$type_entite,$id_nom_appli) : definir les enti
 update_mef($label,$type,$valeur) : definir la valeur d'une variable de mise en forme
 update_mef_default() : choix de la mise en forme par defaut
 update_mef_test() : choix de la mise en forme personnalisee
+truncate_depot_applications() : vider la table depot_applications
+delete_info_pkg_depot($id_depot) : supprimer la liste des applications d'un depot
+insert_info_pkg_depot($tab) : ajouter les informations d'une application d'un depot
 
 ----------------------------------------------------------------------------------------------------
 */
@@ -731,6 +737,87 @@ function mise_en_forme_info()
 	return $tab;
 }
 
+function info_depot()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT d.id_depot, d.nom_depot, d.url_depot, d.depot_principal FROM `depot` d WHERE d.depot_actif=1 ORDER BY d.depot_principal DESC, d.id_depot ASC");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_depot,$res_nom_depot,$res_url_depot,$res_depot_principal);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[$res_id_depot] = array("id_depot"=>$res_id_depot
+										,"nom_depot"=>$res_nom_depot
+										,"url_depot"=>$res_url_depot
+										,"depot_principal"=>$res_depot_principal);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_depot_appli($id_depot)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT `id_depot_applications`, `id_nom_app`, `nom_app`, `xml`, `url_xml`, `sha_xml`, `url_log`, `categorie`, `compatibilite`, `version`, `branche`, `date` FROM `depot_applications` WHERE id_depot=?");
+	mysqli_stmt_bind_param($query,"i", $id_depot);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query, $res_id_depot_applications, $res_id_nom_app, $res_nom_app, $res_xml, $res_url_xml, $res_sha_xml, $res_url_log, $res_categorie, $res_compatibilite, $res_version, $res_branche, $res_date);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[]=array("id_depot_applications"=>$res_id_depot_applications
+						,"id_nom_app"=>$res_id_nom_app
+						,"nom_app"=>$res_nom_app
+						,"xml"=>$res_xml
+						,"url_xml"=>$res_url_xml
+						,"sha_xml"=>$res_sha_xml
+						,"url_log"=>$res_url_log
+						,"categorie"=>$res_categorie
+						,"compatibilite"=>$res_compatibilite
+						,"version"=>$res_version
+						,"branche"=>$res_branche
+						,"date"=>$res_date);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_depot_principal()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT d.id_depot FROM `depot` d WHERE d.depot_actif=1 and d.depot_principal=1");
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query,$res_id_depot);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[] = array("id_depot"=>$res_id_depot);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 ///////////////////////////////////
 
 function insert_poste_info_wpkg($info)
@@ -1125,6 +1212,37 @@ function update_mef_test()
 	mysqli_stmt_execute($update_query);
 	mysqli_stmt_close($update_query);
 	deconnexion_db_wpkg($wpkg_link);
+}
+
+function truncate_depot_applications()
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "TRUNCATE depot_applications");
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function delete_info_pkg_depot($id_depot)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "DELETE FROM `depot_applications` WHERE `id_depot`=?");
+	mysqli_stmt_bind_param($update_query,"s",$id_depot);
+	mysqli_stmt_execute($update_query);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+}
+
+function insert_info_pkg_depot($tab)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$update_query = mysqli_prepare($wpkg_link, "INSERT INTO `depot_applications`(`id_nom_app`, `nom_app`, `xml`, `url_xml`, `sha_xml`, `url_log`, `categorie`, `compatibilite`, `version`, `branche`, `date`, `id_depot`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+	mysqli_stmt_bind_param($update_query,"sssssssssssi", $tab["id_nom_app"], $tab["nom_app"], $tab["xml"], $tab["url_xml"], $tab["sha_xml"], $tab["url_log"], $tab["categorie"], $tab["compatibilite"], $tab["version"], $tab["branche"], $tab["date"], $tab["id_depot"]);
+	mysqli_stmt_execute($update_query);
+	$id=mysqli_insert_id($wpkg_link);
+	mysqli_stmt_close($update_query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $id;
 }
 
 ?>
