@@ -38,6 +38,7 @@ mise_en_forme_info() : extraction de toutes les informations de mise en forme
 info_depot() : information des depots enregistres dans wpkg
 info_depot_appli($id_depot) : liste des applis d'un depot
 info_depot_principal() : liste des depots principaux (1 seul depot principal theoriquement)
+info_depot_id_appli($id_depot_applications) : liste des infos d'une application d'un depot
 
 ----------------------------------------------------------------------------------------------------
 
@@ -810,6 +811,40 @@ function info_depot_principal()
 		while (mysqli_stmt_fetch($query))
 		{
 			$tab[] = array("id_depot"=>$res_id_depot);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
+function info_depot_id_appli($id_depot_applications)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$query = mysqli_prepare($wpkg_link, "SELECT `id_depot_applications`, `id_nom_app`, `nom_app`, `xml`, `url_xml`, `sha_xml`, `url_log`, `categorie`, `compatibilite`, `version`, `branche`, `date` FROM `depot_applications` WHERE id_depot_applications=?");
+	mysqli_stmt_bind_param($query,"i", $id_depot_applications);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query, $res_id_depot_applications, $res_id_nom_app, $res_nom_app, $res_xml, $res_url_xml, $res_sha_xml, $res_url_log, $res_categorie, $res_compatibilite, $res_version, $res_branche, $res_date);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab = array("id_depot_applications"=>$res_id_depot_applications
+						,"id_nom_app"=>$res_id_nom_app
+						,"nom_app"=>$res_nom_app
+						,"xml"=>$res_xml
+						,"url_xml"=>$res_url_xml
+						,"sha_xml"=>$res_sha_xml
+						,"url_log"=>$res_url_log
+						,"categorie"=>$res_categorie
+						,"compatibilite"=>$res_compatibilite
+						,"version"=>$res_version
+						,"branche"=>$res_branche
+						,"date"=>$res_date);
 		}
 
 	}

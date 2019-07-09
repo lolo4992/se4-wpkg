@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Jeu 27 Juin 2019 à 17:28
+-- Généré le :  Mer 10 Juillet 2019 à 00:57
 -- Version du serveur :  5.5.59-0+deb7u1
 -- Version de PHP :  5.4.45-0+deb7u14
 
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `depot` (
   `depot_actif` tinyint(4) NOT NULL,
   `depot_principal` tinyint(4) NOT NULL,
   PRIMARY KEY (`id_depot`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
