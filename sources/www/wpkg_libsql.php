@@ -39,6 +39,7 @@ info_depot() : information des depots enregistres dans wpkg
 info_depot_appli($id_depot) : liste des applis d'un depot
 info_depot_principal() : liste des depots principaux (1 seul depot principal theoriquement)
 info_depot_id_appli($id_depot_applications) : liste des infos d'une application d'un depot
+info_appli_version_depot($id_depot,$id_nom_appli) : liste des infos d'une application donnee sur le depot id_depot
 
 ----------------------------------------------------------------------------------------------------
 
@@ -852,6 +853,42 @@ function info_depot_id_appli($id_depot_applications)
 	deconnexion_db_wpkg($wpkg_link);
 	return $tab;
 }
+
+function info_appli_version_depot($id_depot,$id_nom_appli)
+{
+	$wpkg_link=connexion_db_wpkg();
+	$md5=hash('md5',$id_nom_appli);
+	$query = mysqli_prepare($wpkg_link, "SELECT `id_depot_applications`, `id_nom_app`, `nom_app`, `xml`, `url_xml`, `sha_xml`, `url_log`, `categorie`, `compatibilite`, `version`, `branche`, `date` FROM `depot_applications` WHERE id_depot=? AND MD5(id_nom_app)=?");
+	mysqli_stmt_bind_param($query,"is", $id_depot, $md5);
+	mysqli_stmt_execute($query);
+	mysqli_stmt_bind_result($query, $res_id_depot_applications, $res_id_nom_app, $res_nom_app, $res_xml, $res_url_xml, $res_sha_xml, $res_url_log, $res_categorie, $res_compatibilite, $res_version, $res_branche, $res_date);
+	mysqli_stmt_store_result($query);
+	$num_rows=mysqli_stmt_num_rows($query);
+	$tab=array();
+	if ($num_rows!=0)
+	{
+		while (mysqli_stmt_fetch($query))
+		{
+			$tab[]=array("id_depot_applications"=>$res_id_depot_applications
+						,"id_nom_app"=>$res_id_nom_app
+						,"nom_app"=>$res_nom_app
+						,"xml"=>$res_xml
+						,"url_xml"=>$res_url_xml
+						,"sha_xml"=>$res_sha_xml
+						,"url_log"=>$res_url_log
+						,"categorie"=>$res_categorie
+						,"compatibilite"=>$res_compatibilite
+						,"version"=>$res_version
+						,"branche"=>$res_branche
+						,"date"=>$res_date);
+		}
+
+	}
+	mysqli_stmt_close($query);
+	deconnexion_db_wpkg($wpkg_link);
+	return $tab;
+}
+
 
 ///////////////////////////////////
 

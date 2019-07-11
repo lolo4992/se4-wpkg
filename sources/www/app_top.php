@@ -13,7 +13,8 @@
 	}
 	array_multisort($name, SORT_ASC, $liste_appli);
 
-	$svn_info=array(); //get_list_wpkg_svn_info($xml_forum);
+	$id_depot=info_depot_principal();
+	$svn_info=info_appli_version_depot($id_depot[0]["id_depot"],$get_Appli);
 
 	if ($page_id>0)
 	{
@@ -117,7 +118,7 @@
 		echo "<th width='70'>Priorit&#233;</th>";
 		echo "<th width='70'>Reboot</th>";
 		echo "<th width='180'>Date d'ajout</th>";
-		echo "<th width='120'>Version SVN</th>";
+		echo "<th width='180'>Version dépôt principal</th>";
 		echo "</tr>\n";
 		echo "<tr bgcolor='white' height='30' valing='center'>";
 		echo "<td align='center'><a href='app_extract.php?extractAppli=".$application["id_nom_app"]."' target='info' style='color: ".$regular_lnk."'>xml</a></td>";
@@ -164,22 +165,15 @@
 			echo "Oui";
 		echo "</td>";
 		echo "<td align='center'>".date('d/m/Y à H:i:s',strtotime($application["date_modif_app"]))."</td>";
-		if (isset($svn_info[$application["id"]]))
+		if ($svn_info)
 		{
-			$rev=array();
-			if (isset ($svn_info[$application["id"]]["stable"]))
+			$rev=array(); $rev_sha=array();
+			foreach ($svn_info as $svn_i)
 			{
-				$rev["stable"]=$svn_info[$application["id"]]["stable"]["revision"];
+				$rev[$svn_i["branche"]]=$svn_i["version"];
+				$rev_sha[$svn_i["branche"]]=$svn_i["sha_xml"];
 			}
-			if (isset ($svn_info[$application["id"]]["test"]))
-			{
-				$rev["test"]=$svn_info[$application["id"]]["test"]["revision"];
-			}
-			if (isset ($svn_info[$application["id"]]["XP"]) and get_wpkg_branche_XP()==1)
-			{
-				$rev["XP"]=$svn_info[$application["id"]]["XP"]["revision"];
-			}
-			if (in_array($application["revision"],$rev))
+			if (in_array($application["sha_app"],$rev_sha))
 			{
 				echo "<td align='center' bgcolor='".$ok_bg."' style='color:".$ok_txt."'>";
 			}
@@ -199,7 +193,7 @@
 		}
 		else
 		{
-			echo "<td align='center' bgcolor='".$error_bg."' style='color:".$error_txt."'>-</td>";
+			echo "<td align='center' bgcolor='".$error_bg."' style='color:".$error_txt."'>Indisponible</td>";
 		}
 		echo "</tr>\n";
 		echo "</table>\n";
