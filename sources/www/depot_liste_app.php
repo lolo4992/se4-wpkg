@@ -196,36 +196,39 @@
 					}
 					echo "</td></tr>\n";
 					echo "</table>\n";
-
-					// si tout est telecharge... import du paquet dans packages.xml
-					echo "<h2>Importation du xml dans packages.xml et mise &#224; jour de la liste des applications.</h2>\n";
-					echo "<table width='80%' align='center'>\n";
 					if ($ii==$success)
 					{
-						echo "<tr><td align='center'>\n";
+						echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+						foreach ($package->getElementsByTagName('delete') as $del)
+						{
+							$fileUrl = (string) $del->getAttribute('file');
+							if (file_exists($wpkgroot2."/".$fileUrl))
+							{
+								unlink($wpkgroot2."/".$fileUrl);
+								echo "Suppression du fichier <b>".$fileUrl."</b>.<br>\n";
+							}
+						}
+					}
+					// si tout est telecharge... import du paquet dans packages.xml
+					echo "<h2>Importation du xml dans packages.xml et mise &#224; jour de la liste des applications</h2>\n";
+					if ($ii==$success)
+					{
 						foreach ($list_Appli as $get_Appli)
 						{
 							remove_app($get_Appli,$url_packages);
 							echo "Suppression de l'ancien paquet (".$get_Appli.").<br>\n";
 						}
-						echo "</td></tr>\n";
-						echo "<tr><td align='center'>\n";
 						add_app($liste_applications,$url_packages,$uploadfile,$login);
-						echo "Ajout des nouveaux paquets achev&#233;.";
-						echo "</td></tr>\n";
-						echo "<tr><td align='center'>\n";
-						echo "";
-						echo "</td></tr>\n";
+						echo "Ajout des nouveaux paquets achev&#233;.<br>\n";
+						echo "<br>\n";
 						$app_success++;
 					}
 					else
 					{
-						echo "<tr><td align='center'>\n";
-						echo "Op&#233;ration annul&#233;e. Erreur sur le t&#233;l&#233;chargement des fichiers.";
-						echo "</td></tr>\n";
+						echo "Op&#233;ration annul&#233;e. Erreur sur le t&#233;l&#233;chargement des fichiers.<br>\n";
+						echo "<br>\n";
 						$app_error++;
 					}
-					echo "</table>\n";
 				}
 			}
 		}
@@ -239,6 +242,9 @@
 		if ($app_error>1)
 			echo "s";
 		echo " en erreur.</h1>";
+		echo "<br>\n";
+		echo "<a href='depot_liste_app.php'>Retour</a>";
+		echo "<br>\n";
 	}
 	else // mode liste application
 	{

@@ -125,34 +125,36 @@
 			}
 			echo "</td></tr>\n";
 			echo "</table>\n";
-
-			// si tout est telecharge... import du paquet dans packages.xml
-			echo "<h2>Importation du xml dans packages.xml et mise &#224; jour de la liste des applications.</h2>\n";
-			echo "<table width='80%' align='center'>\n";
 			if ($i==$success+1)
 			{
-				echo "<tr><td align='center'>\n";
+				echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+				foreach ($package->getElementsByTagName('delete') as $del)
+				{
+					$fileUrl = (string) $del->getAttribute('file');
+					if (file_exists($wpkgroot2."/".$fileUrl))
+					{
+						unlink($wpkgroot2."/".$fileUrl);
+						echo "Suppression du fichier <b>".$fileUrl."</b>.<br>\n";
+					}
+				}
+			}
+			// si tout est telecharge... import du paquet dans packages.xml
+			echo "<h2>Importation du xml dans packages.xml et mise &#224; jour de la liste des applications</h2>\n";
+			if ($i==$success+1)
+			{
 				foreach ($list_Appli as $get_Appli)
 				{
 					remove_app($get_Appli,$url_packages);
 					echo "Suppression de l'ancien paquet (".$get_Appli.").<br>\n";
 				}
-				echo "</td></tr>\n";
-				echo "<tr><td align='center'>\n";
 				add_app($liste_appli,$url_packages,$uploadfile,$login);
-				echo "Ajout des nouveaux paquets achev&#233;.";
-				echo "</td></tr>\n";
-				echo "<tr><td align='center'>\n";
-				echo "";
-				echo "</td></tr>\n";
+				echo "Ajout des nouveaux paquets achev&#233;.<br>\n";
 			}
 			else
 			{
-				echo "<tr><td align='center'>\n";
-				echo "Op&#233;ration annul&#233;e. Erreur sur le t&#233;l&#233;chargement des fichiers.";
-				echo "</td></tr>\n";
+				echo "Op&#233;ration annul&#233;e. Erreur sur le t&#233;l&#233;chargement des fichiers.<br>\n";
 			}
-			echo "</table>\n";
+			echo "<br>\n";
 		}
 		else
 		{
@@ -162,7 +164,9 @@
 			print_r($_FILES);
 			echo '</pre>';
 		}
-
+		echo "<br>\n";
+		echo "<a href='depot_upload_app.php'>Retour</a>";
+		echo "<br>\n";
 	}
 	else
 	{
