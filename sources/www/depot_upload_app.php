@@ -33,10 +33,13 @@
 	$config = HTMLPurifier_Config::createDefault();
 	$purifier = new HTMLPurifier($config);
 
+	/*
 	if (isset($_POST["ignoreWawadebMD5"]))
 		$ignoreWawadebMD5=$purifier->purify($_POST["ignoreWawadebMD5"])+0;
 	else
 		$ignoreWawadebMD5=0;
+	*/
+	$ignoreWawadebMD5=1;
 	if (isset($_POST["noDownload"]))
 		$noDownload=$purifier->purify($_POST["noDownload"])+0;
 	else
@@ -177,8 +180,12 @@
 					<td>
 						Si vous avez déjà placé les fichiers nécessaires à l'application, sur le serveur: <br>
 						<input name="noDownload" value="1" type="checkbox"></input>Ne pas télécharger les fichiers d'installation de cette application.<br><br>
+<?php
+/*
 						Pour ajouter une application qui n'est pas répertoriée sur le serveur de référence, cocher cette case : <br>
 						<input name="ignoreWawadebMD5" value="1" onclick="if(this.checked) alert('Soyez sûr du contenu du fichier xml que vous allez installer sur le serveur!\nAucun contrôle ne sera effectué !\n\nLa sécurité de votre réseau est en jeu !!');" type="checkbox"></input>Ignorer le contrôle de hashage.<br><br>
+*/
+?>
 					</td>
 				</tr>
 				<tr>
