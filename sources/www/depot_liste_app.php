@@ -198,15 +198,33 @@
 					echo "</table>\n";
 					if ($ii==$success)
 					{
-						echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+						$k=0;
 						foreach ($package->getElementsByTagName('delete') as $del)
 						{
+							if ($k==0)
+							{
+								echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+								$k++;
+							}
 							$fileUrl = (string) $del->getAttribute('file');
 							if (file_exists($wpkgroot2."/".$fileUrl))
 							{
 								unlink($wpkgroot2."/".$fileUrl);
 								echo "Suppression du fichier <b>".$fileUrl."</b>.<br>\n";
 							}
+						}
+						$k=0;
+						foreach ($package->getElementsByTagName('untar') as $untar)
+						{
+							if ($k==0)
+							{
+								echo "<h2>Décompression des fichiers d'installation</h2>\n";
+								$k++;
+							}
+							$tar_file = (string) $untar->getAttribute('tarfile');
+							$tar_target = (string) $untar->getAttribute('target');
+							$return=untar_file($tar_file,$tar_target);
+							echo $return."<br>\n";
 						}
 					}
 					// si tout est telecharge... import du paquet dans packages.xml

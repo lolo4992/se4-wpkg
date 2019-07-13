@@ -47,7 +47,7 @@
 
 	$page_id=2;
 	include("depot_top.php");
-	
+
 	if (isset($_FILES['appliXml']))
 	{
 		$liste_appli=liste_applications();
@@ -130,17 +130,36 @@
 			echo "</table>\n";
 			if ($i==$success+1)
 			{
-				echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+				$k=0;
 				foreach ($package->getElementsByTagName('delete') as $del)
 				{
 					$fileUrl = (string) $del->getAttribute('file');
 					if (file_exists($wpkgroot2."/".$fileUrl))
 					{
+						if ($k==0)
+						{
+							echo "<h2>Suppression des fichiers d'installation obsolètes</h2>\n";
+							$k++;
+						}
 						unlink($wpkgroot2."/".$fileUrl);
 						echo "Suppression du fichier <b>".$fileUrl."</b>.<br>\n";
 					}
 				}
+				$k=0;
+				foreach ($package->getElementsByTagName('untar') as $untar)
+				{
+					if ($k==0)
+					{
+						echo "<h2>Décompression des fichiers d'installation</h2>\n";
+						$k++;
+					}
+					$tar_file = (string) $untar->getAttribute('tarfile');
+					$tar_target = (string) $untar->getAttribute('target');
+					$return=untar_file($tar_file,$tar_target);
+					echo $return."<br>\n";
+				}
 			}
+
 			// si tout est telecharge... import du paquet dans packages.xml
 			echo "<h2>Importation du xml dans packages.xml et mise &#224; jour de la liste des applications</h2>\n";
 			if ($i==$success+1)

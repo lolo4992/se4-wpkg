@@ -5,6 +5,7 @@
 
 	microtime_float()
 	download_file($fileUrl,$fileTarget,$hashage_md5,$hashage_sha256)
+	untar_file($tar_file,$tar_target)
 	remove_app($get_Appli,$url_packages)
 	add_app($liste_appli,$url_packages,$url_package,$login)
 
@@ -141,6 +142,55 @@
 		return array("etat"=>$etat,"msg"=>$return);
 	}
 
+	function untar_file($tar_file,$tar_target)
+	{
+		global $wpkgroot,$wpkgroot2;
+		if (file_exists($wpkgroot2.'/'.$tar_file))
+		{
+			try
+			{
+				$nom_tar=basename($tar_file); $supp_tar=0;
+				if (pathinfo($nom_tar,PATHINFO_EXTENSION)=="gz")
+				{
+					$phar1 = new PharData($wpkgroot2.'/'.$tar_file);
+					$tar_extracted = str_replace('.tar.gz', '.tar', $tar_file);
+					if (file_exists($wpkgroot2.'/'.$tar_extracted))
+					{
+						unlink($wpkgroot2.'/'.$tar_extracted);
+					}
+					$phar1->decompress();
+					$tar_extracted = str_replace('.tar.gz', '.tar', $tar_file);
+					$supp_tar=1;
+				}
+				$tar_extracted = str_replace('.tar.gz', '.tar', $tar_file);
+				$nom_tar_extracted=basename($tar_extracted);
+				if (pathinfo($nom_tar_extracted,PATHINFO_EXTENSION)=="tar")
+				{
+					$phar = new PharData($wpkgroot2.'/'.$tar_extracted);
+					$phar->extractTo($wpkgroot2.'/'.$tar_target, null, true);
+					if (file_exists($wpkgroot2.'/'.$tar_extracted) and $supp_tar==1)
+					{
+						unlink($wpkgroot2.'/'.$tar_extracted);
+					}
+					$return='Le fichier '.$tar_file.' a été décompressé dans le répertoire '.$tar_target;
+				}
+				else
+				{
+					$return='Le fichier '.$tar_file.' n\'a pas été décompressé.';
+				}
+			}
+			catch (Exception $e)
+			{
+				$return='Le fichier '.$tar_file.' n\'a pas été décompressé.';
+			}
+		}
+		else
+		{
+			$return='Le fichier '.$tar_file.' est introuvable.';
+		}
+		return $return;
+	}
+
 	function remove_app($get_Appli,$url_packages)
 	{
 		$xml = new DOMDocument;
@@ -245,7 +295,7 @@
 
 		$packages = $document->documentElement->getElementsByTagName('package');
 		$length = $packages->length;
-		
+
 		$xpath = new DOMXpath($document);
 		$list = iterator_to_array($xpath->evaluate('/packages/package'));
 		uasort(
