@@ -66,7 +66,7 @@
 		}
 		if ($download==1)
 		{
-			$handle = popen("/usr/bin/wget --no-check-certificate --no-cache --progress=dot -O '".$wpkgroot."/tmp2/".$fileName."' ".$fileUrl." 2>&1", 'r');
+			$handle = popen("/usr/bin/wget --no-check-certificate --no-cache --progress=dot -O '".$wpkgroot."/tmp2/".$fileName."' '".$fileUrl."' 2>&1", 'r');
 			if (is_resource($handle))
 			{
 				$timestamp = microtime_float();
